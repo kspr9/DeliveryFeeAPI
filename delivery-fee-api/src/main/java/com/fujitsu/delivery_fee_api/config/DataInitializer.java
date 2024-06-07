@@ -123,10 +123,10 @@ public class DataInitializer {
             WeatherData weatherDataTallinn = new WeatherData("Tallinn-Harku", 26038, 21.7f, 3.5f, "Clear", 1717495442);
             weatherDataRepository.save(weatherDataTallinn);
             
-            WeatherData weatherDataTartu = new WeatherData("Tartu-Tõravere", 26242, -2.1f, 4.7f, "Light snow shower", 1717495442);
+            WeatherData weatherDataTartu = new WeatherData("Tartu-Tõravere", 26242, -12.3f, 21.0f, "Light snow shower", 1717495442);
             weatherDataRepository.save(weatherDataTartu);
 
-            WeatherData weatherDataParnu = new WeatherData("Pärnu", 41803, 15.0f, 2.0f, "Rain", 1717495442);
+            WeatherData weatherDataParnu = new WeatherData("Pärnu", 41803, 15.0f, 2.0f, "Thunder", 1717495442);
             weatherDataRepository.save(weatherDataParnu);
 
 

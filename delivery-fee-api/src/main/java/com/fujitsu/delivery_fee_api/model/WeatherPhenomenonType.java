@@ -1,14 +1,11 @@
 package com.fujitsu.delivery_fee_api.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
-// import javax.persistence.ManyToOne;
-// import javax.persistence.JoinColumn;
-// import javax.persistence.FetchType;
 
 @Entity
 @Table(name = "weather_phenomenon_types")
@@ -19,10 +16,6 @@ public class WeatherPhenomenonType {
     private Long id;
     private String phenomenon;
     private String weatherPhenomenonCategory; // "RAIN", "SNOW OR SLEET", "THUNDER, GLAZE OR HAIL", null
-
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "wpef_category_id", referencedColumnName = "id")
-    // private WeatherPhenomenonExtraFee wpefCategory;
 
     // Constructors
     public WeatherPhenomenonType() {
