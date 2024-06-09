@@ -33,21 +33,21 @@ public class WeatherPhenomenonExtraFee {
 
     private Float extraFee;
     private Boolean forbidden;
-    private LocalDateTime effective_date;
-    private Boolean is_active;
+    private LocalDateTime effectiveDate;
+    private Boolean isActive;
 
     // Default constructor
     public WeatherPhenomenonExtraFee() {
     }
 
     // Parameterized constructor
-    public WeatherPhenomenonExtraFee(String phenomenonCategoryCode, Set<VehicleType> applicableVehicles, Float extraFee, Boolean forbidden, LocalDateTime effective_date, Boolean is_active) {
+    public WeatherPhenomenonExtraFee(String phenomenonCategoryCode, Set<VehicleType> applicableVehicles, Float extraFee, Boolean forbidden, LocalDateTime effectiveDate, Boolean isActive) {
         this.phenomenonCategoryCode = phenomenonCategoryCode;
         this.applicableVehicles = applicableVehicles;
         this.extraFee = extraFee;
         this.forbidden = forbidden;
-        this.effective_date = effective_date;
-        this.is_active = is_active;
+        this.effectiveDate = effectiveDate;
+        this.isActive = isActive;
     }
 
     // Getters and setters
@@ -88,18 +88,18 @@ public class WeatherPhenomenonExtraFee {
     }
 
     public LocalDateTime getEffectiveDate() {
-        return effective_date;
+        return effectiveDate;
     }
 
-    public void setEffectiveDate(LocalDateTime effective_date) {
-        this.effective_date = effective_date;
+    public void setEffectiveDate(LocalDateTime effectiveDate) {
+        this.effectiveDate = effectiveDate;
     }
 
     public Boolean getIsActive() {
-        return is_active;
+        return isActive;
     }
 
-    public void setIsActive(Boolean is_active) {
-        this.is_active = is_active;
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 }

@@ -5,7 +5,10 @@ import com.fujitsu.delivery_fee_api.model.fee_tables.*;
 import com.fujitsu.delivery_fee_api.repository.*;
 import com.fujitsu.delivery_fee_api.service.DeliveryFeeCalculationService;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,6 +29,9 @@ public class DataController {
     private WeatherDataRepository weatherDataRepository;
 
     @Autowired
+    private WeatherPhenomenonTypeRepository weatherPhenomenonTypeRepository;
+
+    @Autowired
     private RegionalBaseFeeRepository regionalBaseFeeRepository;
 
     @Autowired
@@ -41,15 +47,20 @@ public class DataController {
     private DeliveryFeeCalculationService deliveryFeeService;
 
     @GetMapping("/calculateDeliveryFee")
-    public ResponseEntity<?> calculateDeliveryFee(@RequestParam String city, @RequestParam String vehicleType) {
+    public ResponseEntity<?> calculateDeliveryFee(
+        @RequestParam String city, 
+        @RequestParam String vehicleType,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime) {
+        
         try {
-            Float totalFee = deliveryFeeService.calculateDeliveryFee(city, vehicleType);
+            Float totalFee = deliveryFeeService.calculateDeliveryFee(city, vehicleType, dateTime);
             return ResponseEntity.ok(totalFee);
         } catch (Exception e) {
             // Log the exception details here for debugging
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
     }
+
 
     @PostMapping("/city")
     public ResponseEntity<City> addCity(@Valid @RequestBody City city) {
@@ -78,6 +89,16 @@ public class DataController {
             return ResponseEntity.status(HttpStatus.CREATED).body(savedWeatherData);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to save weather data", e);
+        }
+    }
+    
+    @PostMapping("/weatherPhenomenonType")
+    public ResponseEntity<WeatherPhenomenonType> addWeatherPhenomenonType(@Valid @RequestBody WeatherPhenomenonType weatherPhenomenonType) {
+        try {
+            WeatherPhenomenonType savedWeatherPhenomenonType = weatherPhenomenonTypeRepository.save(weatherPhenomenonType);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedWeatherPhenomenonType);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to save weather phenomenon type", e);
         }
     }
 
