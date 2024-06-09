@@ -1,0 +1,11 @@
+package com.fujitsu.delivery_fee_api.repository;
+
+import com.fujitsu.delivery_fee_api.model.City;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface CityRepository extends JpaRepository<City, Long> {
+    City findByCity(String city);
+    
+}
