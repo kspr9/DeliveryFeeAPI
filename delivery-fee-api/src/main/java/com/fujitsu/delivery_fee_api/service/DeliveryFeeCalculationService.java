@@ -59,6 +59,15 @@ public class DeliveryFeeCalculationService {
         this.weatherPhenomenonExtraFeeRepository = weatherPhenomenonExtraFeeRepository;
     }
 
+    /**
+     * Calculates the delivery fee based on the city, vehicle type, and optional date/time.
+     *
+     * @param  city         the name of the city
+     * @param  vehicleType  the type of the vehicle
+     * @param  dateTime     the date/time of the delivery (optional, defaults to current system time)
+     * @return               the calculated total delivery fee
+     * @throws Exception    if there is an error during the calculation
+     */
     public Float calculateDeliveryFee(String city, String vehicleType, LocalDateTime dateTime) throws Exception {
         logger.info("dateTime.now() is: {}", dateTime);
         // Use dateTime if provided, otherwise default to current system time

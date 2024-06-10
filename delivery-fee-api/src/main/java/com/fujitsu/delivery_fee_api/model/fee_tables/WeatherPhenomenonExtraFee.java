@@ -21,7 +21,7 @@ public class WeatherPhenomenonExtraFee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String phenomenonCategoryCode; // "RAIN", "SNOW OR SLEET", "THUNDER, GLAZE OR HAIL", "No EF"
+    private String phenomenonCategoryCode; // "RAIN", "SNOW OR SLEET", "THUNDER, GLAZE OR HAIL"
 
     @ManyToMany
     @JoinTable(
