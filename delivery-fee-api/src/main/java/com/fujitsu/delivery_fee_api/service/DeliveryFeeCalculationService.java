@@ -60,10 +60,11 @@ public class DeliveryFeeCalculationService {
     }
 
     public Float calculateDeliveryFee(String city, String vehicleType, LocalDateTime dateTime) throws Exception {
-        
+        logger.info("dateTime.now() is: {}", dateTime);
         // Use dateTime if provided, otherwise default to current system time
         if (dateTime == null) {
             dateTime = LocalDateTime.now(); // Default to current system time if dateTime is not provided
+            logger.info("dateTime.now() is: {}", dateTime);
         }
 
 
@@ -103,14 +104,14 @@ public class DeliveryFeeCalculationService {
         logger.info("Current Wind Speed: {}", latestWeatherInCityObj.getWindSpeed());
         logger.info("Current Air Temperature: {}", latestWeatherInCityObj.getAirTemperature());
         logger.info("-------------------------");
-        
+
 
         // HANDLE WEATHER PHENOMENON EXTRA FEE
         // 
         // WP Extra Fees are only applicable if 
         // there is a weather phenomenon in the latest weather data
         // and the vehicle type belongs to extraFeeApplicable category
-        if (weatherPhenomenonName != null && vehicleTypeObj.getExtraFeeApplicable() == true) {
+        if (weatherPhenomenonName != null && !weatherPhenomenonName.trim().isEmpty() && vehicleTypeObj.getExtraFeeApplicable() == true) {
             logger.info("ENTERING - Weather Phenomenon Extra Fee");
 
             try {

@@ -94,11 +94,11 @@ The total delivery fee consists of a regional base fee for a specific vehicle ty
 	- Vehicle type = Car, then RBF = 4 €
 	- Vehicle type = Scooter, then RBF = 3.5 €
 	- Vehicle type = Bike, then RBF = 3 €
-- **In case City = Tartu:
+- **In case City = Tartu:**
 	- Vehicle type = Car, then RBF = 3.5 €
 	- Vehicle type = Scooter, then RBF = 3 €
 	- Vehicle type = Bike, then RBF = 2.5 €
-- **In case City = Pärnu:
+- **In case City = Pärnu:**
 	- Vehicle type = Car, then RBF = 3 €
 	- Vehicle type = Scooter, then RBF = 2.5 €
 	- Vehicle type = Bike, then RBF = 2 €
@@ -172,6 +172,46 @@ Calculations must be based on the latest weather data for a specific city (most 
 | Fog                        | null                      |
 | Thunder                    | THUNDER, GLAZE OR HAIL    |
 | Thunderstorm               | THUNDER, GLAZE OR HAIL    |
+
+### Fee tables
+
+#### Regional Base Fee (RBF) Table
+| City   | Vehicle Type | RBR (€)  |
+|--------|--------------|----------|
+| Tallinn| Car          | 4.00     |
+|        | Scooter      | 3.50     |
+|        | Bike         | 3.00     |
+| Tartu  | Car          | 3.50     |
+|        | Scooter      | 3.00     |
+|        | Bike         | 2.50     |
+| Pärnu  | Car          | 3.00     |
+|        | Scooter      | 2.50     |
+|        | Bike         | 2.00     |
+
+
+#### Air Temperature Extra Fee (ATEF) Table
+
+| ID | Min Temperature | Max Temperature | Vehicle Types     | Extra Fee |
+|----|-----------------|-----------------|-------------------|-----------|
+| 1  | NULL            | -10.00          | Scooter, Bike     | 1.00      |
+| 2  | -10.00          | 0.00            | Scooter, Bike     | 0.50      |
+
+
+#### Wind Speed Extra Fee (WSEF) Table
+
+| ID | Min Wind Speed | Max Wind Speed | Vehicle Types | Extra Fee | Forbidden |
+|----|----------------|----------------|---------------|-----------|-----------|
+| 1  | 10.00          | 20.00          | Bike          | 0.50      | FALSE     |
+| 2  | 20.00          | NULL           | Bike          | NULL      | TRUE      |
+
+#### Weather Phenomenon Extra Fee (WPEF) Table
+
+| ID | Phenomenon Category    | Vehicle Types     | Extra Fee | Forbidden |
+|----|------------------------|-------------------|-----------|-----------|
+| 1  | SNOW OR SLEET          | Scooter, Bike     | 1.00      | FALSE     |
+| 3  | RAIN                   | Scooter, Bike     | 0.50      | FALSE     |
+| 4  | THUNDER, GLAZE OR HAIL | Scooter, Bike     | NULL      | TRUE      |
+
 
 
 ### REST interface

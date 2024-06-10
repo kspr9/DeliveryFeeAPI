@@ -42,7 +42,7 @@ public class DataInitializer {
     private WeatherPhenomenonExtraFeeRepository weatherPhenomenonExtraFeeRepository;
 
     @Bean
-    CommandLineRunner initData() {
+    public CommandLineRunner initData() {
         return args -> {
             // Add test data for City
             City tallinn = new City("Tallinn", 26038);
