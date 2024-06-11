@@ -44,7 +44,7 @@ public class WeatherDataCronService {
         
     }
 
-    @Scheduled(cron = "0 0 15 * * *")  // Runs at every hour at 15 minutes
+    @Scheduled(cron = "* 15 * * * *")  // Runs at every hour at 15 minutes
     public void importWeatherData() {
         logger.info("Starting weather data import job");
         String url = "https://www.ilmateenistus.ee/ilma_andmed/xml/observations.php";

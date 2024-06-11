@@ -6,6 +6,21 @@
 
 ## Endpoints
 
+### Import Weather Data
+
+**GET** `/import`
+
+Manually triggers the import of weather data.
+
+- **Responses:**
+    - `200 OK`: Successful trigger of weather data import.
+
+**Example Request:**
+```bash
+curl -X GET "http://<base-url>/api/weather/import"
+```
+---
+
 ### Retrieve Weather Data by ID
 
 **GET** `/{id}`
@@ -24,10 +39,3 @@ Retrieves a WeatherData object by its ID.
 curl -X GET "http://<base-url>/api/weather/1"
 ```
 
-### Import Weather Data
-
-URL: /api/weather/import
-Method: GET
-Success Response:
-Code: 200 OK
-Example:

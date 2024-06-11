@@ -15,6 +15,15 @@ public class WeatherDataController {
     private WeatherDataCronService weatherDataCronService;
 
     /**
+     * Manually triggers the import of weather data.
+     */
+    @GetMapping("/import")
+    public ResponseEntity<Void> importWeatherData() {
+        weatherDataCronService.importWeatherData();
+        return ResponseEntity.ok().build();
+    }
+    
+    /**
      * Retrieves a WeatherData object by its ID.
      *
      * @param id the ID of the WeatherData object to retrieve
@@ -36,12 +45,4 @@ public class WeatherDataController {
         return weatherDataCronService.saveWeatherData(weatherData);
     }
 
-    /**
-     * Manually triggers the import of weather data.
-     */
-    @GetMapping("/import")
-    public ResponseEntity<Void> importWeatherData() {
-        weatherDataCronService.importWeatherData();
-        return ResponseEntity.ok().build();
-    }
 }

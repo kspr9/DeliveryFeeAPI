@@ -20,6 +20,12 @@ Calculate the delivery fee based on city, vehicle type, and optionally a specifi
   - `200 OK`: Returns the total delivery fee as a float.
   - `403 FORBIDDEN`: Returns an error message "Usage of selected vehicle type is forbidden" if usage of selected vehicle is forbidden.
 
+**Example Request:**
+```bash
+ curl -X GET "http://<base-url>/api/data/calculateDeliveryFee?city=P%C3%A4rnu&vehicleType=Bike&dateTime=2023-06-10T14%3A30"
+
+ curl -X GET "http://<base-url>/api/data/calculateDeliveryFee?city=P%C3%A4rnu&vehicleType=Bike&dateTime=2023-06-10T14%3A30"
+```
 
 ## Adding new business rules and extra fee rules
 
@@ -31,16 +37,29 @@ Add a new regional base fee rule to the database.
 
 - **Request Body:**
   - `RegionalBaseFee` (JSON, required): The regional base fee object containing:
-    City city (city_id)
-    VehicleType vehicleType (vehicleType_id)
-    Float baseFee
-    LocalDateTime effectiveDate
-    Boolean isActive
-
+    - City city (city_id)
+    - VehicleType vehicleType (vehicleType_id)
+    - Float baseFee
+    - LocalDateTime effectiveDate
+    - Boolean isActive
 
 - **Responses:**
   - `201 CREATED`: Returns the saved regional base fee object.
   - `400 BAD REQUEST`: Returns an error message if the regional base fee could not be saved.
+
+
+**Example Request:**
+```bash
+curl -X POST "http://<base-url>/regionalBaseFee" \
+-H "Content-Type: application/json" \
+-d '{
+  "city": 1,  
+  "vehicleType": 3,  
+  "baseFee": 25.0,
+  "effectiveDate": "2024-06-10T00:00:00",
+  "isActive": true
+}'
+```
 
 ### Add Air Temperature Extra Fee
 
@@ -50,16 +69,30 @@ Add a new air temperature extra fee to the database.
 
 - **Request Body:**
   - `AirTemperatureExtraFee` (JSON, required): The air temperature extra fee object containing 
-    Float minTemp
-    Float maxTemp
-    Set<VehicleType> applicableVehicles (vehicleType_id)
-    Float extraFee
-    LocalDateTime effectiveDate
-    Boolean isActive
+    - Float minTemp
+    - Float maxTemp
+    - Set<VehicleType> applicableVehicles (vehicleType_id)
+    - Float extraFee
+    - LocalDateTime effectiveDate
+    - Boolean isActive
 
 - **Responses:**
   - `201 CREATED`: Returns the saved air temperature extra fee object.
   - `400 BAD REQUEST`: Returns an error message if the air temperature extra fee could not be saved.
+
+**Example Request:**
+```bash
+curl -X POST "http://<base-url>/airTemperatureExtraFee" \
+-H "Content-Type: application/json" \
+-d '{
+  "minTemp": 0.0,
+  "maxTemp": 10.0,
+  "applicableVehicles": [1, 2],
+  "extraFee": 15.5,
+  "effectiveDate": "2024-06-10T00:00:00",  // ISO 8601 format date and time
+  "isActive": true
+}'
+```
 
 ### Add Wind Speed Extra Fee
 
@@ -81,6 +114,20 @@ Add a new wind speed extra fee to the database.
   - `201 CREATED`: Returns the saved wind speed extra fee object.
   - `400 BAD REQUEST`: Returns an error message if the wind speed extra fee could not be saved.
 
+**Example Request:**
+```bash
+curl -X POST "http://<base-url>/windSpeedExtraFee" \
+-H "Content-Type: application/json" \
+-d '{
+  "minSpeed": 10.0,
+  "maxSpeed": 20.0,
+  "extraFee": 5.0,
+  "forbidden": false,
+  "effectiveDate": "2024-06-10T00:00:00",
+  "isActive": true,
+  "applicableVehicles": [1, 2, 3]
+}'
+```
 ### Add Weather Phenomenon Extra Fee
 
 **POST** `/weatherPhenomenonExtraFee`
@@ -99,6 +146,20 @@ Add a new weather phenomenon extra fee to the database.
 - **Responses:**
   - `201 CREATED`: Returns the saved weather phenomenon extra fee object.
   - `400 BAD REQUEST`: Returns an error message if the weather phenomenon extra fee could not be saved.
+
+**Example Request:**
+```bash
+curl -X POST "http://<base-url>/weatherPhenomenonExtraFee" \
+-H "Content-Type: application/json" \
+-d '{
+  "phenomenonCategoryCode": "RAIN",
+  "applicableVehicles": [1, 2], 
+  "extraFee": 7.5,
+  "forbidden": false,
+  "effectiveDate": "2024-06-10T00:00:00",
+  "isActive": true
+}'
+```
 
 ## Adding database entries
 
@@ -123,8 +184,8 @@ Add a new vehicle type to the database.
 
 - **Request Body:**
   - `VehicleType` (JSON, required): The vehicle type object containing details such as 
-    String name
-    boolean extraFeeApplicable - if vehicle belongs to a group of vehicles where extra fees based on weather conditions apply
+    - String name
+    - boolean extraFeeApplicable - if vehicle belongs to a group of vehicles where extra fees based on weather conditions apply
 
 - **Responses:**
   - `201 CREATED`: Returns the saved vehicle type object.
@@ -138,12 +199,12 @@ Add new weather data to the database.
 
 - **Request Body:**
   - `WeatherData` (JSON, required): The weather data object containing details such as 
-    String stationName
-    int wmoCode
-    Float airTemperature
-    Float windSpeed
-    String weatherPhenomenon
-    int observationTimestamp
+    - String stationName
+    - int wmoCode
+    - Float airTemperature
+    - Float windSpeed
+    - String weatherPhenomenon
+    - int observationTimestamp
 
 - **Responses:**
   - `201 CREATED`: Returns the saved weather data object.
@@ -157,8 +218,8 @@ Add a new weather phenomenon type to the database.
 
 - **Request Body:**
   - `WeatherPhenomenonType` (JSON, required): The weather phenomenon type object containing details such as 
-    String phenomenonName
-    String weatherPhenomenonCategory
+    - String phenomenonName
+    - String weatherPhenomenonCategory
 
 - **Responses:**
   - `201 CREATED`: Returns the saved weather phenomenon type object.
@@ -174,7 +235,9 @@ All endpoints will return standard HTTP status codes to indicate success or fail
 curl -X GET "http://localhost:8080/api/data/calculateDeliveryFee?city=Tartu&vehicleType=Bike&dateTime=2023-06-01T15:00:00"
 
 curl -X GET "http://localhost:8080/api/data/calculateDeliveryFee?city=Tartu&vehicleType=Bike"
+```
 
 **Add City**
 ```bash
 curl -X POST "http://localhost:8080/api/data/city" -H "Content-Type: application/json" -d '{"city": "Tartu", "wmoCode": 26242}'
+```
