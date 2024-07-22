@@ -7,6 +7,7 @@ import com.fujitsu.delivery_fee_api.model.City;
 import com.fujitsu.delivery_fee_api.model.WeatherData;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
 
 import java.io.StringReader;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +32,10 @@ import java.util.stream.Collectors;
 public class WeatherDataCronService {
 
     private static final Logger logger = LoggerFactory.getLogger(WeatherDataCronService.class);
+
+    @Value("${weather.api.url}")
+    private String weatherApiUrl;
+    
     private final RestTemplate restTemplate;
     private final WeatherDataRepository weatherDataRepository;
     private final CityRepository cityRepository;
@@ -44,12 +48,12 @@ public class WeatherDataCronService {
         
     }
 
-    @Scheduled(cron = "0 15 * * * *")  // Runs at every hour at 15 minutes
+    @Scheduled(cron = "${weather.import.cron}")
     public void importWeatherData() {
         logger.info("Starting weather data import job");
-        String url = "https://www.ilmateenistus.ee/ilma_andmed/xml/observations.php";
+        // String url = "https://www.ilmateenistus.ee/ilma_andmed/xml/observations.php";
         try {
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            ResponseEntity<String> response = restTemplate.getForEntity(weatherApiUrl, String.class);
             if (response.getStatusCode() == HttpStatus.OK) {
                 logger.info("Received data successfully");
                 // Get a list of cities to filter the weather data based on WMOCodes
