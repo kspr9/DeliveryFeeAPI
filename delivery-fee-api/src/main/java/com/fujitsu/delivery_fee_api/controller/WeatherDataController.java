@@ -17,7 +17,7 @@ public class WeatherDataController {
     /**
      * Manually triggers the import of weather data.
      */
-    @GetMapping("/import")
+    @PostMapping("/import")
     public ResponseEntity<Void> importWeatherData() {
         weatherDataCronService.importWeatherData();
         return ResponseEntity.ok().build();
@@ -40,7 +40,7 @@ public class WeatherDataController {
      * @param weatherData the WeatherData object to be saved
      * @return the newly created WeatherData object
      */
-    @PostMapping
+    @PostMapping("/createWeatherData")
     public WeatherData createWeatherData(@RequestBody WeatherData weatherData) {
         return weatherDataCronService.saveWeatherData(weatherData);
     }

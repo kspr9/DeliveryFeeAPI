@@ -8,44 +8,29 @@ import com.fujitsu.delivery_fee_api.service.DeliveryFeeCalculationService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/api/data")
+@RequiredArgsConstructor
 public class DataController {
 
-    @Autowired
-    private CityRepository cityRepository;
-
-    @Autowired
-    private VehicleTypeRepository vehicleTypeRepository;
-
-    @Autowired
-    private WeatherDataRepository weatherDataRepository;
-
-    @Autowired
-    private WeatherPhenomenonTypeRepository weatherPhenomenonTypeRepository;
-
-    @Autowired
-    private RegionalBaseFeeRepository regionalBaseFeeRepository;
-
-    @Autowired
-    private AirTemperatureExtraFeeRepository airTemperatureExtraFeeRepository;
-
-    @Autowired
-    private WindSpeedExtraFeeRepository windSpeedExtraFeeRepository;
-
-    @Autowired
-    private WeatherPhenomenonExtraFeeRepository weatherPhenomenonExtraFeeRepository;
-
-    @Autowired
-    private DeliveryFeeCalculationService deliveryFeeService;
+    private final CityRepository cityRepository;
+    private final VehicleTypeRepository vehicleTypeRepository;
+    private final WeatherDataRepository weatherDataRepository;
+    private final WeatherPhenomenonTypeRepository weatherPhenomenonTypeRepository;
+    private final RegionalBaseFeeRepository regionalBaseFeeRepository;
+    private final AirTemperatureExtraFeeRepository airTemperatureExtraFeeRepository;
+    private final WindSpeedExtraFeeRepository windSpeedExtraFeeRepository;
+    private final WeatherPhenomenonExtraFeeRepository weatherPhenomenonExtraFeeRepository;
+    private final DeliveryFeeCalculationService deliveryFeeService;
 
     /**
      * Calculate the delivery fee based on city, vehicle type, and optionally a specific date and time.
@@ -147,6 +132,7 @@ public class DataController {
      *                           or a 400 Bad Request status code with an error message if there was an error
      * @throws ResponseStatusException if there was an error saving the regional base fee
      */
+    @PostMapping("/regionalBaseFee")
     public ResponseEntity<RegionalBaseFee> addRegionalBaseFee(@Valid @RequestBody RegionalBaseFee regionalBaseFee) {
         try {
             RegionalBaseFee savedRegionalBaseFee = regionalBaseFeeRepository.save(regionalBaseFee);
@@ -164,6 +150,7 @@ public class DataController {
      *                                 or a 400 Bad Request status code with an error message if there was an error
      * @throws ResponseStatusException if there was an error saving the AirTemperatureExtraFee
      */
+    @PostMapping("/airTemperatureExtraFee")
     public ResponseEntity<AirTemperatureExtraFee> addAirTemperatureExtraFee(@Valid @RequestBody AirTemperatureExtraFee airTemperatureExtraFee) {
         try {
             AirTemperatureExtraFee savedAirTemperatureExtraFee = airTemperatureExtraFeeRepository.save(airTemperatureExtraFee);
@@ -181,6 +168,7 @@ public class DataController {
      *                             or a 400 Bad Request status code with an error message if there was an error
      * @throws ResponseStatusException if there was an error saving the WindSpeedExtraFee
      */
+    @PostMapping("/windSpeedExtraFee")
     public ResponseEntity<WindSpeedExtraFee> addWindSpeedExtraFee(@Valid @RequestBody WindSpeedExtraFee windSpeedExtraFee) {
         try {
             WindSpeedExtraFee savedWindSpeedExtraFee = windSpeedExtraFeeRepository.save(windSpeedExtraFee);
@@ -198,6 +186,7 @@ public class DataController {
      *                                      or a 400 Bad Request status code with an error message if there was an error
      * @throws ResponseStatusException       if there was an error saving the WeatherPhenomenonExtraFee
      */
+    @PostMapping("/weatherPhenomenonExtraFee")
     public ResponseEntity<WeatherPhenomenonExtraFee> addWeatherPhenomenonExtraFee(@Valid @RequestBody WeatherPhenomenonExtraFee weatherPhenomenonExtraFee) {
         try {
             WeatherPhenomenonExtraFee savedWeatherPhenomenonExtraFee = weatherPhenomenonExtraFeeRepository.save(weatherPhenomenonExtraFee);
