@@ -39,7 +39,7 @@ There has to be at least 1 table in the database for weather data where the foll
 	- Weather phenomenon
 	- Timestamp of the observations
 
-Additional tables could be created in the database if it’s considered necessary to store classifications, parameters etc for fee calculation, etc.
+Additional tables could be created in the database if it’s considered necessary to store classifications, parameters etc. for fee calculation.
 
 ### Cronjob
 
@@ -141,7 +141,7 @@ Calculations must be based on the latest weather data for a specific city (most 
 		- WPEF = Error: "Usage of selected vehicle type is forbidden"
 		- Total delivery fee (TDF) = Error: "Usage of selected vehicle type is forbidden"
 
-#### Wheather phenomena and their classifications
+#### Weather phenomena and their classifications
 
 | Weather Phenomenon         | Phenomenon Category       |
 |----------------------------|---------------------------|
@@ -176,17 +176,17 @@ Calculations must be based on the latest weather data for a specific city (most 
 ### Fee tables
 
 #### Regional Base Fee (RBF) Table
-| City   | Vehicle Type | RBR (€)  |
-|--------|--------------|----------|
-| Tallinn| Car          | 4.00     |
-|        | Scooter      | 3.50     |
-|        | Bike         | 3.00     |
-| Tartu  | Car          | 3.50     |
-|        | Scooter      | 3.00     |
-|        | Bike         | 2.50     |
-| Pärnu  | Car          | 3.00     |
-|        | Scooter      | 2.50     |
-|        | Bike         | 2.00     |
+| City    | Vehicle Type | RBR (€) |
+|---------|--------------|---------|
+| Tallinn | Car          | 4.00    |
+|         | Scooter      | 3.50    |
+|         | Bike         | 3.00    |
+| Tartu   | Car          | 3.50    |
+|         | Scooter      | 3.00    |
+|         | Bike         | 2.50    |
+| Pärnu   | Car          | 3.00    |
+|         | Scooter      | 2.50    |
+|         | Bike         | 2.00    |
 
 
 #### Air Temperature Extra Fee (ATEF) Table

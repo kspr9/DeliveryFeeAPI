@@ -1,50 +1,26 @@
 package com.fujitsu.delivery_fee_api.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.NonNull;
 
-
+@Data
+@NoArgsConstructor(force = true)
+@RequiredArgsConstructor
 @Entity
 @Table(name = "weather_phenomenon_types")
 public class WeatherPhenomenonType {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NonNull
     private String phenomenon;
-    private String weatherPhenomenonCategory; // "RAIN", "SNOW OR SLEET", "THUNDER, GLAZE OR HAIL", null
 
-    // Constructors
-    public WeatherPhenomenonType() {
-    }
+    @NonNull
+    private String weatherPhenomenonCategory;
 
-    public WeatherPhenomenonType(String phenomenon, String weatherPhenomenonCategory) {
-        this.phenomenon = phenomenon;
-        this.weatherPhenomenonCategory = weatherPhenomenonCategory;
-    }
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public String getPhenomenon() {
-        return phenomenon;
-    }
-
-    public void setPhenomenon(String phenomenon) {
-        this.phenomenon = phenomenon;
-    }
-
-    public String getWeatherPhenomenonCategory() {
-        return weatherPhenomenonCategory;
-    }
-
-    public void setWeatherPhenomenonCategory(String weatherPhenomenonCategory) {
-        // "RAIN", "SNOW OR SLEET", "THUNDER, GLAZE OR HAIL", null
-        this.weatherPhenomenonCategory = weatherPhenomenonCategory;
-    }
+    public static final String CATEGORY_NONE = "None";
 }

@@ -5,6 +5,7 @@ import com.fujitsu.delivery_fee_api.model.fee_tables.*;
 import com.fujitsu.delivery_fee_api.repository.*;
 import com.fujitsu.delivery_fee_api.service.DeliveryFeeCalculationService;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +62,7 @@ public class DataController {
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime) {
         
         try {
-            Float totalFee = deliveryFeeService.calculateDeliveryFee(city, vehicleType, dateTime);
+            BigDecimal totalFee = deliveryFeeService.calculateDeliveryFee(city, vehicleType, dateTime);
             return ResponseEntity.ok(totalFee);
         } catch (Exception e) {
             // Log the exception details here for debugging

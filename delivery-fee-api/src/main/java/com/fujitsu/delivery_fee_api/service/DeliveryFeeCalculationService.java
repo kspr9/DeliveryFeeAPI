@@ -1,38 +1,25 @@
 package com.fujitsu.delivery_fee_api.service;
 
+import com.fujitsu.delivery_fee_api.model.*;
+import com.fujitsu.delivery_fee_api.model.fee_tables.*;
+import com.fujitsu.delivery_fee_api.repository.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.math.BigDecimal;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.fujitsu.delivery_fee_api.model.City;
-import com.fujitsu.delivery_fee_api.model.VehicleType;
-import com.fujitsu.delivery_fee_api.model.WeatherData;
-import com.fujitsu.delivery_fee_api.model.WeatherPhenomenonType;
-import com.fujitsu.delivery_fee_api.model.fee_tables.AirTemperatureExtraFee;
-import com.fujitsu.delivery_fee_api.model.fee_tables.WeatherPhenomenonExtraFee;
-import com.fujitsu.delivery_fee_api.model.fee_tables.WindSpeedExtraFee;
-import com.fujitsu.delivery_fee_api.repository.AirTemperatureExtraFeeRepository;
-import com.fujitsu.delivery_fee_api.repository.CityRepository;
-import com.fujitsu.delivery_fee_api.repository.RegionalBaseFeeRepository;
-import com.fujitsu.delivery_fee_api.repository.VehicleTypeRepository;
-import com.fujitsu.delivery_fee_api.repository.WeatherDataRepository;
-import com.fujitsu.delivery_fee_api.repository.WeatherPhenomenonExtraFeeRepository;
-import com.fujitsu.delivery_fee_api.repository.WeatherPhenomenonTypeRepository;
-import com.fujitsu.delivery_fee_api.repository.WindSpeedExtraFeeRepository;
-
-// import java.math.BigDecimal;
-
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class DeliveryFeeCalculationService {
 
-    private static final Logger logger = LoggerFactory.getLogger(DeliveryFeeCalculationService.class);
-
+    
     private final WeatherDataRepository weatherDataRepository;
     
     // define all data type repositories
@@ -68,21 +55,20 @@ public class DeliveryFeeCalculationService {
      * @return               the calculated total delivery fee
      * @throws Exception    if there is an error during the calculation
      */
-    public Float calculateDeliveryFee(String city, String vehicleType, LocalDateTime dateTime) throws Exception {
-        logger.info("dateTime.now() is: {}", dateTime);
+    public BigDecimal calculateDeliveryFee(String city, String vehicleType, LocalDateTime dateTime) throws Exception {
+        log.info("dateTime.now() is: {}", dateTime);
         // Use dateTime if provided, otherwise default to current system time
         if (dateTime == null) {
             dateTime = LocalDateTime.now(); // Default to current system time if dateTime is not provided
-            logger.info("dateTime.now() is: {}", dateTime);
+            log.info("dateTime.now() is: {}", dateTime);
         }
 
 
-        logger.info("Calculating delivery fee for city: {}, vehicleType: {} and dateTime: {}", city, vehicleType, dateTime.toLocalDate());
+        log.info("Calculating delivery fee for city: {}, vehicleType: {} and dateTime: {}", city, vehicleType, dateTime.toLocalDate());
 
-        Float totalFee = 0.0f;
-        Float wpef = 0.0f;
-        Float atef = 0.0f;
-        Float wsef = 0.0f;
+        BigDecimal wpef = BigDecimal.ZERO;
+        BigDecimal atef = BigDecimal.ZERO;
+        BigDecimal wsef = BigDecimal.ZERO;
 
         // Fetch City object based on supplied city name
         City cityObj = cityRepository.findByCity(city);
@@ -103,16 +89,16 @@ public class DeliveryFeeCalculationService {
         // Fetch the name of weather phenomenon in the latest weather data
         String weatherPhenomenonName = latestWeatherInCityObj.getWeatherPhenomenon();
         
-        logger.info("-------------------------");
-        logger.info("Main request parameters: ");
-        logger.info("City name of City Object: {}", cityObj.getCity());
-        logger.info("Vehicle Type Object: {}", vehicleTypeObj.getVehicleType());
-        logger.info("Weather Data Object: {}", latestWeatherInCityObj.getStationName());
-        logger.info("Observation Timestamp: {}", latestWeatherInCityObj.getObservationTimestampAsLocalDateTime());
-        logger.info("Weather Phenomenon Name: {}", weatherPhenomenonName);
-        logger.info("Current Wind Speed: {}", latestWeatherInCityObj.getWindSpeed());
-        logger.info("Current Air Temperature: {}", latestWeatherInCityObj.getAirTemperature());
-        logger.info("-------------------------");
+        log.info("-------------------------");
+        log.info("Main request parameters: ");
+        log.info("City name of City Object: {}", cityObj.getCity());
+        log.info("Vehicle Type Object: {}", vehicleTypeObj.getVehicleType());
+        log.info("Weather Data Object: {}", latestWeatherInCityObj.getStationName());
+        log.info("Observation Timestamp: {}", latestWeatherInCityObj.getObservationTimestampAsLocalDateTime());
+        log.info("Weather Phenomenon Name: {}", weatherPhenomenonName);
+        log.info("Current Wind Speed: {}", latestWeatherInCityObj.getWindSpeed());
+        log.info("Current Air Temperature: {}", latestWeatherInCityObj.getAirTemperature());
+        log.info("-------------------------");
 
 
         // HANDLE WEATHER PHENOMENON EXTRA FEE
@@ -121,10 +107,10 @@ public class DeliveryFeeCalculationService {
         // there is a weather phenomenon in the latest weather data
         // and the vehicle type belongs to extraFeeApplicable category
         if (weatherPhenomenonName != null && !weatherPhenomenonName.trim().isEmpty() && vehicleTypeObj.getExtraFeeApplicable() == true) {
-            logger.info("ENTERING - Weather Phenomenon Extra Fee");
+            log.info("ENTERING - Weather Phenomenon Extra Fee");
 
             try {
-                wpef += calculateWPEF(weatherPhenomenonName, vehicleTypeObj, dateTime);
+                wpef = calculateWPEF(weatherPhenomenonName, vehicleTypeObj, dateTime);
             } catch (Exception e) {
                 // Handle the exception, perhaps log it or rethrow as necessary
                 throw e;
@@ -138,12 +124,12 @@ public class DeliveryFeeCalculationService {
         // Air Temperature Extra Fees are only applicable if 
         // the vehicle type belongs to extraFeeApplicable category
         if (vehicleTypeObj.getExtraFeeApplicable() == true) {
-            logger.info("ENTERING - Air Temperature Extra Fee");
+            log.info("ENTERING - Air Temperature Extra Fee");
             // get the air temperature from the latest weather data - latestWeatherInCityObj
             Float currentAirTemperature = latestWeatherInCityObj.getAirTemperature();
-            logger.info("Current Air Temperature: {}", currentAirTemperature);
+            log.info("Current Air Temperature: {}", currentAirTemperature);
 
-            atef += calculateATEF(vehicleTypeObj, currentAirTemperature, dateTime);
+            atef = calculateATEF(vehicleTypeObj, currentAirTemperature, dateTime);
         }
 
 
@@ -152,14 +138,14 @@ public class DeliveryFeeCalculationService {
         // Wind Speed Extra Fees are only applicable if 
         // the vehicle type belongs to extraFeeApplicable category
         if (vehicleTypeObj.getExtraFeeApplicable() == true) {
-            logger.info("ENTERING - Wind Speed Extra Fee");
+            log.info("ENTERING - Wind Speed Extra Fee");
             // get the wind speed from the latest weather data - latestWeatherInCityObj
             Float currentWindSpeed = latestWeatherInCityObj.getWindSpeed();
-            logger.info("Current Wind Speed: {}", currentWindSpeed);
+            log.info("Current Wind Speed: {}", currentWindSpeed);
 
             // use try-catch block to handle exceptions
             try {
-                wsef += calculateWSEF(vehicleTypeObj, currentWindSpeed, dateTime);
+                wsef = calculateWSEF(vehicleTypeObj, currentWindSpeed, dateTime);
             } catch (Exception e) {
                 // Handle the exception, perhaps log it or rethrow as necessary
                 throw e;
@@ -168,44 +154,44 @@ public class DeliveryFeeCalculationService {
 
 
         // Fetch base fee
-        Float baseFee = fetchBaseFee(cityObj, vehicleTypeObj, dateTime);
-        logger.info(" ");
-        logger.info("Before final return");
-        logger.info("Base Fee: {}", baseFee);
-        logger.info("WPEF: {}", wpef);
-        logger.info("ATEF: {}", atef);
-        logger.info("WSEF: {}", wsef);
-        logger.info("-------------------------");
+        BigDecimal baseFee = fetchBaseFee(cityObj, vehicleTypeObj, dateTime);
+        log.info(" ");
+        log.info("Before final return");
+        log.info("Base Fee: {}", baseFee);
+        log.info("WPEF: {}", wpef);
+        log.info("ATEF: {}", atef);
+        log.info("WSEF: {}", wsef);
+        log.info("-------------------------");
 
-        totalFee += baseFee + atef + wsef + wpef;
-        logger.info("Total Fee: {}", totalFee);
+        BigDecimal totalFee = baseFee.add(atef).add(wsef).add(wpef);
+        log.info("Total Fee: {}", totalFee);
 
         return totalFee;
     }
 
-    private Float fetchBaseFee(City cityObj, VehicleType vehicleTypeObj, LocalDateTime dateTime) {
-        logger.info("ENTERING - Fetch Base Fee for {} and {}", cityObj.getCity(), vehicleTypeObj.getVehicleType());
+    private BigDecimal fetchBaseFee(City cityObj, VehicleType vehicleTypeObj, LocalDateTime dateTime) {
+        log.info("ENTERING - Fetch Base Fee for {} and {}", cityObj.getCity(), vehicleTypeObj.getVehicleType());
         // Fetch and calculate the base fee based on city and vehicle type
-        Float rbf = regionalBaseFeeRepository.fetchLatestBaseFee(cityObj.getId(), vehicleTypeObj.getId(), dateTime);
-        logger.info("EXITING -- Base Fee: {}", rbf);
-        logger.info("-------------------------");
+        BigDecimal rbf = regionalBaseFeeRepository.fetchLatestBaseFee(cityObj.getId(), vehicleTypeObj.getId(), dateTime);
+        log.info("EXITING -- Base Fee: {}", rbf);
+        log.info("-------------------------");
         return rbf;
     }
     
-    private Float calculateWPEF(String weatherPhenomenonName, VehicleType vehicleTypeObj, LocalDateTime dateTime) throws Exception {
-        logger.info("ENTERING - Calculate Weather Phenomenon Extra Fee for {} and {} at {}", weatherPhenomenonName, vehicleTypeObj.getVehicleType(), dateTime.toLocalDate());
+    private BigDecimal calculateWPEF(String weatherPhenomenonName, VehicleType vehicleTypeObj, LocalDateTime dateTime) throws Exception {
+        log.info("ENTERING - Calculate Weather Phenomenon Extra Fee for {} and {} at {}", weatherPhenomenonName, vehicleTypeObj.getVehicleType(), dateTime.toLocalDate());
 
-        Float wpef = 0.0f;
+        BigDecimal wpef = BigDecimal.ZERO;
 
         // fetch the WeatherPhenomenonType object based on weatherPhenomenonName
         WeatherPhenomenonType weatherPhenomenonObj = weatherPhenomenonTypeRepository.findByPhenomenon(weatherPhenomenonName);
         // Find the weather phenomenon extra fee category and assign the phenomenonCategoryCode to weatherPhenomenonCategory variable
         String weatherPhenomenonCategory = weatherPhenomenonObj.getWeatherPhenomenonCategory();
-        logger.info("Weather Phenomenon Category: {}", weatherPhenomenonCategory);
+        log.info("Weather Phenomenon Category: {}", weatherPhenomenonCategory);
 
         // if weatherPhenomenonCategory is not null, ie WPEF is applicable only if there is weather phenomenon EF category for given phenomenon 
-        if (weatherPhenomenonCategory != null) {
-            logger.info("Calculating Weather Phenomenon Extra Fee");
+        if (weatherPhenomenonCategory != "None") {
+            log.info("Calculating Weather Phenomenon Extra Fee");
 
             // fetch the WeatherPhenomenonExtraFee object based on weatherPhenomenonCategory, vehicleType and dateTime
             WeatherPhenomenonExtraFee weatherPhenomenonExtraFeeObj = weatherPhenomenonExtraFeeRepository
@@ -213,72 +199,72 @@ public class DeliveryFeeCalculationService {
                 
             // Throw an exception if the weather phenomenon extra fee category is forbidden for the provided vehicle type
             if (weatherPhenomenonExtraFeeObj.getForbidden()) {
-                logger.info("WPEF not added to total fee: {}", weatherPhenomenonExtraFeeObj.getExtraFee());
-                logger.info("EXITING -- Weather Phenomenon Extra Fee is forbidden for this vehicle type: {}", vehicleTypeObj);
-                logger.info("-------------------------");
+                log.info("WPEF not added to total fee: {}", weatherPhenomenonExtraFeeObj.getExtraFee());
+                log.info("EXITING -- Weather Phenomenon Extra Fee is forbidden for this vehicle type: {}", vehicleTypeObj);
+                log.info("-------------------------");
                 throw new Exception("Usage of selected vehicle type is forbidden");
             }
     
             // Get the weather phenomenon extra fee from the matching fee instance
-            wpef += weatherPhenomenonExtraFeeObj.getExtraFee();
+            wpef = weatherPhenomenonExtraFeeObj.getExtraFee();
         } else {
-            logger.info("weatherPhenomenonCategory was null, so WP no extra fees applicable for any vehicle type");
+            log.info("weatherPhenomenonCategory was None, so WP no extra fees applicable for any vehicle type");
         }
 
-        logger.info("EXITING -- WPEF: {}", wpef);
-        logger.info("-------------------------");
+        log.info("EXITING -- WPEF: {}", wpef);
+        log.info("-------------------------");
         return wpef;
     }
     
     
-    private Float calculateATEF(VehicleType vehicleTypeObj, Float airTemperature, LocalDateTime dateTime) {
-        logger.info("ENTERING - Calculate Air Temperature Extra Fee for temperature {} and {}", airTemperature, vehicleTypeObj.getVehicleType());
+    private BigDecimal calculateATEF(VehicleType vehicleTypeObj, Float airTemperature, LocalDateTime dateTime) {
+        log.info("ENTERING - Calculate Air Temperature Extra Fee for temperature {} and {}", airTemperature, vehicleTypeObj.getVehicleType());
         
         // Fetch air temperature extra fee instance based on temperature and vehicle type
         AirTemperatureExtraFee airTemperatureExtraFeeObj = airTemperatureExtraFeeRepository.findLatestByTemperatureAndVehicleTypeAndQueryTime(airTemperature, vehicleTypeObj.getId(), dateTime);
 
-        // If no applicable fees are found, return 0.0f
+        // If no applicable fees are found, return BigDecimal.ZERO;
         if (airTemperatureExtraFeeObj == null) {
-            logger.info("No applicable extra fees found for given air temperature");
-            logger.info("EXITING -- ATEF.isEmpty: {}", 0.0f);
-            logger.info("-------------------------");
-            return 0.0f;  // Return 0.0f if no fees are applicable
+            log.info("No applicable extra fees found for given air temperature");
+            log.info("EXITING -- ATEF.isEmpty: {}", BigDecimal.ZERO);
+            log.info("-------------------------");
+            return BigDecimal.ZERO;  // Return 0.0f if no fees are applicable
         }
         
         // Get the air temperature extra fee from the matching fee instance
-        Float atef = airTemperatureExtraFeeObj.getExtraFee();
-        logger.info("EXITING -- ATEF: {}", atef);
-        logger.info("-------------------------");
+        BigDecimal atef = airTemperatureExtraFeeObj.getExtraFee();
+        log.info("EXITING -- ATEF: {}", atef);
+        log.info("-------------------------");
         return atef;
 
     }
 
-    private Float calculateWSEF(VehicleType vehicleTypeObj, Float windSpeed, LocalDateTime dateTime) throws Exception {
-            logger.info("ENTERING - Calculate Wind Speed Extra Fee for windSpeed {} and {}", windSpeed, vehicleTypeObj.getVehicleType());
+    private BigDecimal calculateWSEF(VehicleType vehicleTypeObj, Float windSpeed, LocalDateTime dateTime) throws Exception {
+            log.info("ENTERING - Calculate Wind Speed Extra Fee for windSpeed {} and {}", windSpeed, vehicleTypeObj.getVehicleType());
         
         // Fetch wind speed extra fee instance based on wind speed and vehicle type
         WindSpeedExtraFee windSpeedExtraFeeObj = windSpeedExtraFeeRepository.findLatestByWindSpeedAndVehicleTypeAndQueryTime(windSpeed, vehicleTypeObj.getId(), dateTime);
         
         if (windSpeedExtraFeeObj == null) {
-            logger.info("No applicable extra fees found for given wind speed");
-            logger.info("EXITING -- WSEF.isEmpty: {}", 0.0f);
-            logger.info("-------------------------");
-            return 0.0f;  // Return 0.0f if no fees are applicable
+            log.info("No applicable extra fees found for given wind speed");
+            log.info("EXITING -- WSEF.isEmpty: {}", BigDecimal.ZERO);
+            log.info("-------------------------");
+            return BigDecimal.ZERO;  // Return 0.0f if no fees are applicable
         }
         
 
         // Throw an exception if the wind speed extra fee category is forbidden for the provided vehicle type
         if (windSpeedExtraFeeObj.getForbidden()) {
-            logger.info("WSEF not added: {}", windSpeedExtraFeeObj.getExtraFee());
-            logger.info("EXITING -- Wind Speed Extra Fee is forbidden for this vehicle type: {}", vehicleTypeObj.getVehicleType());
-            logger.info("-------------------------");
+            log.info("WSEF not added: {}", windSpeedExtraFeeObj.getExtraFee());
+            log.info("EXITING -- Wind Speed Extra Fee is forbidden for this vehicle type: {}", vehicleTypeObj.getVehicleType());
+            log.info("-------------------------");
             throw new Exception("Usage of selected vehicle type is forbidden");
         }
         
         // Get the wind speed extra fee from the matching fee instance
-        Float wsef = windSpeedExtraFeeObj.getExtraFee();
-        logger.info("EXITING -- WSEF: {}", wsef);
-        logger.info("-------------------------");
+        BigDecimal wsef = windSpeedExtraFeeObj.getExtraFee();
+        log.info("EXITING -- WSEF: {}", wsef);
+        log.info("-------------------------");
         return wsef; 
     }
     

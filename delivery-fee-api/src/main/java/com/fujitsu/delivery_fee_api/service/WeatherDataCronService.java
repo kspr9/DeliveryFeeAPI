@@ -1,37 +1,34 @@
-
 package com.fujitsu.delivery_fee_api.service;
 
 import com.fujitsu.delivery_fee_api.repository.CityRepository;
 import com.fujitsu.delivery_fee_api.repository.WeatherDataRepository;
 import com.fujitsu.delivery_fee_api.model.City;
 import com.fujitsu.delivery_fee_api.model.WeatherData;
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.xml.sax.InputSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
-
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component
-public class WeatherDataCronService {
 
-    private static final Logger logger = LoggerFactory.getLogger(WeatherDataCronService.class);
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class WeatherDataCronService {
 
     @Value("${weather.api.url}")
     private String weatherApiUrl;
@@ -40,34 +37,25 @@ public class WeatherDataCronService {
     private final WeatherDataRepository weatherDataRepository;
     private final CityRepository cityRepository;
 
-    @Autowired
-    public WeatherDataCronService(WeatherDataRepository weatherDataRepository, CityRepository cityRepository) {
-        this.restTemplate = new RestTemplate();
-        this.weatherDataRepository = weatherDataRepository;
-        this.cityRepository = cityRepository;
-        
-    }
-
     @Scheduled(cron = "${weather.import.cron}")
     public void importWeatherData() {
-        logger.info("Starting weather data import job");
-        // String url = "https://www.ilmateenistus.ee/ilma_andmed/xml/observations.php";
+        log.info("Starting weather data import job");
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(weatherApiUrl, String.class);
             if (response.getStatusCode() == HttpStatus.OK) {
-                logger.info("Received data successfully");
+                log.info("Received data successfully");
                 // Get a list of cities to filter the weather data based on WMOCodes
                 List<City> cities = cityRepository.findAll();
                 List<Integer> relevantWmoCodes = cities.stream().map(City::getWmoCode).collect(Collectors.toList());
-                logger.info("Relevant WMO Codes: {}", relevantWmoCodes);
+                log.info("Relevant WMO Codes: {}", relevantWmoCodes);
                 List<WeatherData> weatherDataList = parseData(response.getBody(), relevantWmoCodes);
-                // logger.info("Fetched data successfully: {}", response.getBody());
+                // log.info("Fetched data successfully: {}", response.getBody());
                 saveWeatherData(weatherDataList);
             } else {
-                logger.error("Failed to fetch data: HTTP Status {}", response.getStatusCode());
+                log.error("Failed to fetch data: HTTP Status {}", response.getStatusCode());
             }
         } catch (Exception e) {
-            logger.error("Error during weather data fetch: {}", e.getMessage(), e);
+            log.error("Error during weather data fetch: {}", e.getMessage(), e);
         }
     }
 
@@ -84,15 +72,15 @@ public class WeatherDataCronService {
             for (int i = 0; i < stationList.getLength(); i++) {
                 Element stationElement = (Element) stationList.item(i);
                 String wmoCodeStr = getTextContent(stationElement, "wmocode");
-                logger.info("WMO Code: {}", wmoCodeStr);
+                log.info("WMO Code: {}", wmoCodeStr);
                 
                 if (wmoCodeStr.isEmpty()) {
-                    logger.warn("Missing WMO code for station element: {}", stationElement);
+                    log.warn("Missing WMO code for station element: {}", stationElement);
                     continue;
                 }
 
                 int wmoCode = Integer.parseInt(wmoCodeStr);
-                logger.info("Processing station with WMO code: {}", wmoCode);
+                log.info("Processing station with WMO code: {}", wmoCode);
 
                 if (relevantWmoCodes.contains(wmoCode)) {
                     String name = getTextContent(stationElement, "name");
@@ -101,7 +89,7 @@ public class WeatherDataCronService {
                     String weatherPhenomenon = getTextContent(stationElement, "phenomenon");
                     int observationTimestamp = Integer.parseInt(doc.getDocumentElement().getAttribute("timestamp"));
                     
-                    logger.info("Parsed data for station - Name: {}, AirTemperature: {}, WindSpeed: {}, WeatherPhenomenon: {}, ObservationTimestamp: {}",
+                    log.info("Parsed data for station - Name: {}, AirTemperature: {}, WindSpeed: {}, WeatherPhenomenon: {}, ObservationTimestamp: {}",
                             name, airTemperature, windSpeed, weatherPhenomenon, observationTimestamp);
 
                     WeatherData weatherData = new WeatherData();
@@ -111,14 +99,14 @@ public class WeatherDataCronService {
                     weatherData.setWindSpeed(windSpeed);
                     weatherData.setWeatherPhenomenon(weatherPhenomenon);
                     weatherData.setObservationTimestamp(observationTimestamp);
-                    logger.info("Station: {}, WMO Code: {}, Air Temperature: {}, Wind Speed: {}, Weather Phenomenon: {}, Observation Timestamp: {}", name, wmoCode, airTemperature, windSpeed, weatherPhenomenon, observationTimestamp);
+                    log.info("Station: {}, WMO Code: {}, Air Temperature: {}, Wind Speed: {}, Weather Phenomenon: {}, Observation Timestamp: {}", name, wmoCode, airTemperature, windSpeed, weatherPhenomenon, observationTimestamp);
                     weatherDataList.add(weatherData);
                 } else {
-                    logger.info("Skipping station with irrelevant WMO code: {}", wmoCode);
+                    log.info("Skipping station with irrelevant WMO code: {}", wmoCode);
                 }
             }
         } catch (Exception e) {
-            logger.error("Error parsing weather data: {}", e.getMessage(), e);
+            log.error("Error parsing weather data: {}", e.getMessage(), e);
         }
         return weatherDataList;
     }
@@ -142,10 +130,10 @@ public class WeatherDataCronService {
 
     private void saveWeatherData(List<WeatherData> weatherDataList) {
         for (WeatherData weatherData : weatherDataList) {
-            logger.info("Saving data: {}", weatherData.getStationName());
+            log.info("Saving data: {}", weatherData.getStationName());
             weatherDataRepository.save(weatherData);
         }
-        logger.info("Data saved successfully");
+        log.info("Data saved successfully");
     }
 
     public WeatherData getWeatherData(Long id) {

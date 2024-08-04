@@ -1,23 +1,18 @@
 package com.fujitsu.delivery_fee_api.model.fee_tables;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import com.fujitsu.delivery_fee_api.model.VehicleType;
-
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.JoinColumn;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.math.BigDecimal;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "air_temperature_extra_fee")
 public class AirTemperatureExtraFee {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,80 +22,23 @@ public class AirTemperatureExtraFee {
     @ManyToMany
     @JoinTable(
         name = "air_temperature_fee_vehicle",
-        joinColumns = @JoinColumn(name = "fee_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "vehicle_type_id", referencedColumnName = "id")
+        joinColumns = @JoinColumn(name = "fee_id"),
+        inverseJoinColumns = @JoinColumn(name = "vehicle_type_id")
     )
     private Set<VehicleType> applicableVehicles;
 
-    private Float extraFee;
+    private BigDecimal extraFee;
     private LocalDateTime effectiveDate;
     private Boolean isActive;
 
-    
-    // Default constructor
-    public AirTemperatureExtraFee() {
-    }
-
-    // Parameterized constructor
-    public AirTemperatureExtraFee(Float minTemp, Float maxTemp, Set<VehicleType> applicableVehicles, Float extraFee, LocalDateTime effectiveDate, Boolean isActive) {
+    // Custom constructor without id
+    public AirTemperatureExtraFee(Float minTemp, Float maxTemp, Set<VehicleType> applicableVehicles,
+                                  BigDecimal extraFee, LocalDateTime effectiveDate, Boolean isActive) {
         this.minTemp = minTemp;
         this.maxTemp = maxTemp;
         this.applicableVehicles = applicableVehicles;
         this.extraFee = extraFee;
         this.effectiveDate = effectiveDate;
-        this.isActive = isActive;
-    }
-
-    // Getters and setters
-    public Long getId() {
-        return id;
-    }
-
-    public Float getMinTemp() {
-        return minTemp;
-    }
-
-    public void setMinTemp(Float minTemp) {
-        this.minTemp = minTemp;
-    }
-
-    public Float getMaxTemp() {
-        return maxTemp;
-    }
-
-    public void setMaxTemp(Float maxTemp) {
-        this.maxTemp = maxTemp;
-    }
-
-    public Set<VehicleType> getApplicableVehicles() {
-        return applicableVehicles;
-    }
-
-    public void setApplicableVehicles(Set<VehicleType> applicableVehicles) {
-        this.applicableVehicles = applicableVehicles;
-    }
-
-    public Float getExtraFee() {
-        return extraFee;
-    }
-
-    public void setExtraFee(Float extraFee) {
-        this.extraFee = extraFee;
-    }
-
-    public LocalDateTime getEffectiveDate() {
-        return effectiveDate;
-    }
-
-    public void setEffectiveDate(LocalDateTime effectiveDate) {
-        this.effectiveDate = effectiveDate;
-    }
-
-    public Boolean getIsActive() {
-        return isActive;
-    }
-
-    public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
     }
 }

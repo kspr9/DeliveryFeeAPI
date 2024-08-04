@@ -2,6 +2,7 @@ package com.fujitsu.delivery_fee_api.repository;
 
 import com.fujitsu.delivery_fee_api.model.fee_tables.RegionalBaseFee;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,7 +18,7 @@ public interface RegionalBaseFeeRepository extends JpaRepository<RegionalBaseFee
                    "ORDER BY r.effective_date DESC " +
                    "LIMIT 1",
           nativeQuery = true)
-    Float fetchLatestBaseFee(@Param("cityId") Long cityId, 
+    BigDecimal fetchLatestBaseFee(@Param("cityId") Long cityId, 
                              @Param("vehicleTypeId") Long vehicleTypeId, 
                              @Param("queryTime") LocalDateTime queryTime);
 }

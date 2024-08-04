@@ -1,3 +1,4 @@
+
 package com.fujitsu.delivery_fee_api.config;
 
 import com.fujitsu.delivery_fee_api.model.*;
@@ -8,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -62,11 +64,11 @@ public class DataInitializer {
             
             
             // Add test data for the weather phemenon - needs to have the extrafee classes inserted
-            WeatherPhenomenonType clear = new WeatherPhenomenonType("Clear", null);
-            WeatherPhenomenonType fewClouds = new WeatherPhenomenonType("Few clouds", null);
-            WeatherPhenomenonType variableClouds = new WeatherPhenomenonType("Variable clouds", null);
-            WeatherPhenomenonType cloudyWithClearSpells = new WeatherPhenomenonType("Cloudy with clear spells", null);
-            WeatherPhenomenonType overcast = new WeatherPhenomenonType("Overcast", null);
+            WeatherPhenomenonType clear = new WeatherPhenomenonType("Clear", WeatherPhenomenonType.CATEGORY_NONE);
+            WeatherPhenomenonType fewClouds = new WeatherPhenomenonType("Few clouds", WeatherPhenomenonType.CATEGORY_NONE);
+            WeatherPhenomenonType variableClouds = new WeatherPhenomenonType("Variable clouds", WeatherPhenomenonType.CATEGORY_NONE);
+            WeatherPhenomenonType cloudyWithClearSpells = new WeatherPhenomenonType("Cloudy with clear spells", WeatherPhenomenonType.CATEGORY_NONE);
+            WeatherPhenomenonType overcast = new WeatherPhenomenonType("Overcast", WeatherPhenomenonType.CATEGORY_NONE);
             WeatherPhenomenonType lightSnowShower = new WeatherPhenomenonType("Light snow shower", "SNOW OR SLEET");
             WeatherPhenomenonType moderateSnowShower = new WeatherPhenomenonType("Moderate snow shower", "SNOW OR SLEET");
             WeatherPhenomenonType heavySnowShower = new WeatherPhenomenonType("Heavy snow shower", "SNOW OR SLEET");
@@ -85,11 +87,11 @@ public class DataInitializer {
             WeatherPhenomenonType blowingSnow = new WeatherPhenomenonType("Blowing snow", "SNOW OR SLEET");
             WeatherPhenomenonType driftingSnow = new WeatherPhenomenonType("Drifting snow", "SNOW OR SLEET");
             WeatherPhenomenonType hail = new WeatherPhenomenonType("Hail", "THUNDER, GLAZE OR HAIL");
-            WeatherPhenomenonType mist = new WeatherPhenomenonType("Mist", null);
-            WeatherPhenomenonType fog = new WeatherPhenomenonType("Fog", null);
+            WeatherPhenomenonType mist = new WeatherPhenomenonType("Mist", WeatherPhenomenonType.CATEGORY_NONE);
+            WeatherPhenomenonType fog = new WeatherPhenomenonType("Fog", WeatherPhenomenonType.CATEGORY_NONE);
             WeatherPhenomenonType thunder = new WeatherPhenomenonType("Thunder", "THUNDER, GLAZE OR HAIL");
             WeatherPhenomenonType thunderstorm = new WeatherPhenomenonType("Thunderstorm", "THUNDER, GLAZE OR HAIL");
-            
+
             // Save instances to the repository
             weatherPhenomenonTypeRepository.save(clear);
             weatherPhenomenonTypeRepository.save(fewClouds);
@@ -216,23 +218,23 @@ public class DataInitializer {
             //          BUSINESS RULES          //
             //
             // Add business rule entries for RegionalBaseFee
-            RegionalBaseFee rbfTallinnCar = new RegionalBaseFee(tallinn, car, 4.0f, LocalDateTime.of(2023, 1, 1, 0, 0), true);
-            RegionalBaseFee rbfTallinnScooter = new RegionalBaseFee(tallinn, scooter, 3.5f, LocalDateTime.of(2023, 1, 1, 0, 0), true);
-            RegionalBaseFee rbfTallinnBike = new RegionalBaseFee(tallinn, bike, 3.0f, LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            RegionalBaseFee rbfTallinnCar = new RegionalBaseFee(tallinn, car, new BigDecimal("4.0"), LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            RegionalBaseFee rbfTallinnScooter = new RegionalBaseFee(tallinn, scooter, new BigDecimal("3.5"), LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            RegionalBaseFee rbfTallinnBike = new RegionalBaseFee(tallinn, bike, new BigDecimal("3.0"), LocalDateTime.of(2023, 1, 1, 0, 0), true);
             regionalBaseFeeRepository.save(rbfTallinnCar);
             regionalBaseFeeRepository.save(rbfTallinnScooter);
             regionalBaseFeeRepository.save(rbfTallinnBike);
 
-            RegionalBaseFee rbfTartuCar = new RegionalBaseFee(tartu, car, 3.5f, LocalDateTime.of(2023, 1, 1, 0, 0), true);
-            RegionalBaseFee rbfTartuScooter = new RegionalBaseFee(tartu, scooter, 3.0f, LocalDateTime.of(2023, 1, 1, 0, 0), true);
-            RegionalBaseFee rbfTartuBike = new RegionalBaseFee(tartu, bike, 2.5f, LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            RegionalBaseFee rbfTartuCar = new RegionalBaseFee(tartu, car, new BigDecimal("3.5"), LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            RegionalBaseFee rbfTartuScooter = new RegionalBaseFee(tartu, scooter, new BigDecimal("3.0"), LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            RegionalBaseFee rbfTartuBike = new RegionalBaseFee(tartu, bike, new BigDecimal("2.5"), LocalDateTime.of(2023, 1, 1, 0, 0), true);
             regionalBaseFeeRepository.save(rbfTartuCar);
             regionalBaseFeeRepository.save(rbfTartuScooter);
             regionalBaseFeeRepository.save(rbfTartuBike);
 
-            RegionalBaseFee rbfParnuCar = new RegionalBaseFee(parnu, car, 3.0f, LocalDateTime.of(2023, 1, 1, 0, 0), true);
-            RegionalBaseFee rbfParnuScooter = new RegionalBaseFee(parnu, scooter, 2.5f, LocalDateTime.of(2023, 1, 1, 0, 0), true);
-            RegionalBaseFee rbfParnuBike = new RegionalBaseFee(parnu, bike, 2.0f, LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            RegionalBaseFee rbfParnuCar = new RegionalBaseFee(parnu, car, new BigDecimal("3.0"), LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            RegionalBaseFee rbfParnuScooter = new RegionalBaseFee(parnu, scooter, new BigDecimal("2.5"), LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            RegionalBaseFee rbfParnuBike = new RegionalBaseFee(parnu, bike, new BigDecimal("2.0"), LocalDateTime.of(2023, 1, 1, 0, 0), true);
             regionalBaseFeeRepository.save(rbfParnuCar);
             regionalBaseFeeRepository.save(rbfParnuScooter);
             regionalBaseFeeRepository.save(rbfParnuBike);
@@ -241,13 +243,34 @@ public class DataInitializer {
             //
             Set<VehicleType> wpefVechicleSet = new HashSet<>(Arrays.asList(scooter, bike));
 
-            WeatherPhenomenonExtraFee wpefSnowOrSleet = new WeatherPhenomenonExtraFee("SNOW OR SLEET", wpefVechicleSet, 1.0f, false, LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            WeatherPhenomenonExtraFee wpefSnowOrSleet = new WeatherPhenomenonExtraFee(
+                "SNOW OR SLEET", 
+                wpefVechicleSet, 
+                new BigDecimal("1.0"), 
+                false, 
+                LocalDateTime.of(2023, 1, 1, 0, 0), 
+                true
+            );
             weatherPhenomenonExtraFeeRepository.save(wpefSnowOrSleet);
-
-            WeatherPhenomenonExtraFee wpefRain = new WeatherPhenomenonExtraFee("RAIN", wpefVechicleSet, 0.5f, false, LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            
+            WeatherPhenomenonExtraFee wpefRain = new WeatherPhenomenonExtraFee(
+                "RAIN", 
+                wpefVechicleSet, 
+                new BigDecimal("0.5"), 
+                false, 
+                LocalDateTime.of(2023, 1, 1, 0, 0), 
+                true
+            );
             weatherPhenomenonExtraFeeRepository.save(wpefRain);
 
-            WeatherPhenomenonExtraFee wpefThunderGlazeHail = new WeatherPhenomenonExtraFee("THUNDER, GLAZE OR HAIL", wpefVechicleSet, null, true, LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            WeatherPhenomenonExtraFee wpefThunderGlazeHail = new WeatherPhenomenonExtraFee(
+                "THUNDER, GLAZE OR HAIL", 
+                wpefVechicleSet, 
+                null, 
+                true, 
+                LocalDateTime.of(2023, 1, 1, 0, 0), 
+                true
+            );
             weatherPhenomenonExtraFeeRepository.save(wpefThunderGlazeHail);
 
             // Add business rule entries for AirTemperatureExtraFee table
@@ -255,23 +278,52 @@ public class DataInitializer {
             Set<VehicleType> atefVechicleSet = new HashSet<>(Arrays.asList(scooter, bike));
 
             // if AT is below -10, then the fee is 1.0 for applicable vehicles
-            AirTemperatureExtraFee atefBelowM10 = new AirTemperatureExtraFee(null, -10.0f, atefVechicleSet, 1.0f, LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            AirTemperatureExtraFee atefBelowM10 = new AirTemperatureExtraFee(
+                null, 
+                -10.0f, 
+                atefVechicleSet, 
+                new BigDecimal("1.0"), 
+                LocalDateTime.of(2023, 1, 1, 0, 0), 
+                true
+            );
             airTemperatureExtraFeeRepository.save(atefBelowM10);
 
             // if AT is between -10 and 0 deg, then the fee is 0.5 for applicable vehicles
-            AirTemperatureExtraFee atefBetween10A0 = new AirTemperatureExtraFee(-10.0f, 0.0f, atefVechicleSet, 0.5f, LocalDateTime.of(2023, 1, 1, 0, 0), true);
+            AirTemperatureExtraFee atefBetween10A0 = new AirTemperatureExtraFee(
+                -10.0f, 
+                0.0f, 
+                atefVechicleSet, 
+                new BigDecimal("0.5"), 
+                LocalDateTime.of(2023, 1, 1, 0, 0), 
+                true
+            );
             airTemperatureExtraFeeRepository.save(atefBetween10A0);
 
             // Add business rule entries for WindSpeedExtraFee table
-            // 
             Set<VehicleType> wsVechicleSet = new HashSet<>(Arrays.asList(bike));
 
             // if WS is between 10 and 20 m/s, then the fee is 0.5 for applicable vehicles
-            WindSpeedExtraFee wsefBetween10A20 = new WindSpeedExtraFee(10.0f, 20.0f, 0.5f, false, LocalDateTime.of(2023, 1, 1, 0, 0), true, wsVechicleSet);
+            WindSpeedExtraFee wsefBetween10A20 = new WindSpeedExtraFee(
+                10.0f, 
+                20.0f, 
+                wsVechicleSet,
+                new BigDecimal("0.5"), 
+                false, 
+                LocalDateTime.of(2023, 1, 1, 0, 0), 
+                true
+            );
             windSpeedExtraFeeRepository.save(wsefBetween10A20);
 
             // if WS is above 20 m/s, then forbidden is true for applicable vehicles
-            WindSpeedExtraFee wsefAbove20 = new WindSpeedExtraFee(20.0f, null, null, true, LocalDateTime.of(2023, 1, 1, 0, 0), true, wsVechicleSet);
+            WindSpeedExtraFee wsefAbove20 = new WindSpeedExtraFee(
+                20.0f, 
+                null, 
+                wsVechicleSet,
+                null, 
+                true, 
+                LocalDateTime.of(2023, 1, 1, 0, 0), 
+                true
+            );
             windSpeedExtraFeeRepository.save(wsefAbove20);
             
         };
