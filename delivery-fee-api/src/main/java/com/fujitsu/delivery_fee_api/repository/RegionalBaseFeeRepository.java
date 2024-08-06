@@ -1,9 +1,12 @@
 package com.fujitsu.delivery_fee_api.repository;
 
+import com.fujitsu.delivery_fee_api.model.City;
+import com.fujitsu.delivery_fee_api.model.VehicleType;
 import com.fujitsu.delivery_fee_api.model.fee_tables.RegionalBaseFee;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,5 +24,9 @@ public interface RegionalBaseFeeRepository extends JpaRepository<RegionalBaseFee
     BigDecimal fetchLatestBaseFee(@Param("cityId") Long cityId, 
                              @Param("vehicleTypeId") Long vehicleTypeId, 
                              @Param("queryTime") LocalDateTime queryTime);
+
+    // Query the base fee entity based on city, vehicle type, and query time in JPQL
+
+    Optional<RegionalBaseFee> findByCityAndVehicleType(City city, VehicleType vehicleType);
 }
 

@@ -12,6 +12,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.fujitsu.delivery_fee_api.exception.NotFoundException;
+import com.fujitsu.delivery_fee_api.exception.VehicleUsageForbiddenException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -42,16 +45,20 @@ public class DataController {
      */
     @GetMapping("/calculateDeliveryFee")
     public ResponseEntity<?> calculateDeliveryFee(
-        @RequestParam String city, 
-        @RequestParam String vehicleType,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime) {
+            @RequestParam String city,
+            @RequestParam String vehicleType,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime) {
         
         try {
             BigDecimal totalFee = deliveryFeeService.calculateDeliveryFee(city, vehicleType, dateTime);
             return ResponseEntity.ok(totalFee);
-        } catch (Exception e) {
-            // Log the exception details here for debugging
+        } catch (VehicleUsageForbiddenException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while calculating the delivery fee");
         }
     }
 
