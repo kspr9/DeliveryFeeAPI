@@ -1,10 +1,13 @@
 package com.fujitsu.delivery_fee_api.service;
 
 import com.fujitsu.delivery_fee_api.exception.NotFoundException;
-import com.fujitsu.delivery_fee_api.exception.VehicleUsageForbiddenException;
+
 import com.fujitsu.delivery_fee_api.model.*;
-import com.fujitsu.delivery_fee_api.model.fee_tables.*;
+
 import com.fujitsu.delivery_fee_api.repository.*;
+import com.fujitsu.delivery_fee_api.service.fee.ExtraFeeInterface;
+import com.fujitsu.delivery_fee_api.service.fee.impl.BaseFeeCalculator;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,49 +25,69 @@ public class DeliveryFeeCalculationService {
     private final WeatherDataRepository weatherDataRepository;
     private final CityRepository cityRepository;
     private final VehicleTypeRepository vehicleTypeRepository;
-    private final WeatherPhenomenonTypeRepository weatherPhenomenonTypeRepository;
-    private final RegionalBaseFeeRepository regionalBaseFeeRepository;
-    private final AirTemperatureExtraFeeRepository airTemperatureExtraFeeRepository;
-    private final WindSpeedExtraFeeRepository windSpeedExtraFeeRepository;
-    private final WeatherPhenomenonExtraFeeRepository weatherPhenomenonExtraFeeRepository;
-    private static final String FORBIDDEN_VEHICLE = "Usage of selected vehicle type is forbidden";
+    private final List<ExtraFeeInterface> extraFeeCalculators;
+    private final BaseFeeCalculator baseFeeCalculator;
+
+    private static final String TALLINN_ZONE = "Europe/Tallinn";
+    
 
     public BigDecimal calculateDeliveryFee(String cityName, String vehicleTypeName, LocalDateTime dateTime) {
-        if (dateTime == null) {
-            dateTime = LocalDateTime.now();
-            log.info("No dateTime provided. Using current time: {}", dateTime);
-        }
-
+        dateTime = Optional.ofNullable(dateTime).orElseGet(() -> {
+            log.info("No dateTime provided. Using current time: {}", LocalDateTime.now());
+            return LocalDateTime.now();
+        });
+    
         log.info("Calculating delivery fee for city: {}, vehicleType: {} and dateTime: {}", cityName, vehicleTypeName, dateTime);
-
+    
         City city = getCityByName(cityName);
         VehicleType vehicleType = getVehicleTypeByName(vehicleTypeName);
-        
         WeatherData weatherData = getWeatherData(city, dateTime);
+    
+        logMainRequestParameters(city, vehicleType, weatherData);
+    
+        return calculateTotalFee(city, vehicleType, weatherData, dateTime);
+    }
 
+    private BigDecimal calculateTotalFee(City city, VehicleType vehicleType, WeatherData weatherData, LocalDateTime dateTime) {
+        
+        BigDecimal baseFee = calculateBaseFee(city, vehicleType, dateTime);
+        log.info("Base Fee: {}", baseFee);
+        BigDecimal totalExtraFee = calculateTotalExtraFee(weatherData, vehicleType, dateTime);
+        log.info("Total Extra Fee: {}", totalExtraFee);
+
+        BigDecimal totalFee = baseFee.add(totalExtraFee);
+        log.info("Total Fee: {}", totalFee);
+    
+        return totalFee;
+    }
+
+    private BigDecimal calculateTotalExtraFee(WeatherData weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
+        return extraFeeCalculators.stream()
+            .map(calculator -> {
+                BigDecimal fee = calculator.calculateExtraFee(weatherData, vehicleType, dateTime);
+                log.info("{} Extra Fee: {}", calculator.getClass().getSimpleName(), fee);
+                return fee;
+            })
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calculateBaseFee(City city, VehicleType vehicleType, LocalDateTime dateTime) {
+        log.info("Fetching Base Fee for {} and {}", city.getCity(), vehicleType.getVehicleType());
+        
+        return baseFeeCalculator.calculateBaseFee(city, vehicleType, dateTime);
+    }
+
+    private void logMainRequestParameters(City city, VehicleType vehicleType, WeatherData weatherData) {
         log.info("-------------------------");
         log.info("Main request parameters: ");
-        log.info("City name of City Object: {}", cityName);
-        log.info("Vehicle Type Object: {}", vehicleTypeName);
-        log.info("Weather Data Object: {}", weatherData);
+        log.info("City name: {}", city.getCity());
+        log.info("Vehicle Type: {}", vehicleType.getVehicleType());
+        log.info("Weather Data: {}", weatherData);
         log.info("Observation Timestamp: {}", weatherData.getObservationTimestamp());
-        log.info("Weather Phenomenon Name: {}", weatherData.getWeatherPhenomenon());
+        log.info("Weather Phenomenon: {}", weatherData.getWeatherPhenomenon());
         log.info("Current Wind Speed: {}", weatherData.getWindSpeed());
         log.info("Current Air Temperature: {}", weatherData.getAirTemperature());
         log.info("-------------------------");
-
-        BigDecimal baseFee = fetchBaseFee(city, vehicleType, dateTime);
-        BigDecimal weatherPhenomenonExtraFee = calculateWeatherPhenomenonExtraFee(weatherData, vehicleType, dateTime);
-        BigDecimal airTemperatureExtraFee = calculateAirTemperatureExtraFee(weatherData, vehicleType, dateTime);
-        BigDecimal windSpeedExtraFee = calculateWindSpeedExtraFee(weatherData, vehicleType, dateTime);
-        log.info("weatherPhenomenonExtraFee: {}", weatherPhenomenonExtraFee);
-        log.info("airTemperatureExtraFee: {}", airTemperatureExtraFee);
-        log.info("windSpeedExtraFee: {}", windSpeedExtraFee);
-
-        BigDecimal totalFee = baseFee.add(weatherPhenomenonExtraFee).add(airTemperatureExtraFee).add(windSpeedExtraFee);
-        log.info("Total Fee: {}", totalFee);
-
-        return totalFee;
     }
 
     private City getCityByName(String cityName) {
@@ -85,99 +108,10 @@ public class DeliveryFeeCalculationService {
     }
     
     private int convertToEpochSeconds(LocalDateTime dateTime) {
-        ZoneId zoneId = ZoneId.of("Europe/Tallinn");
+        ZoneId zoneId = ZoneId.of(TALLINN_ZONE);
         ZonedDateTime zonedDateTime = dateTime.atZone(zoneId);
         return Math.toIntExact(zonedDateTime.toEpochSecond());
     }
 
-    private BigDecimal fetchBaseFee(City city, VehicleType vehicleType, LocalDateTime dateTime) {
-        log.info("Fetching Base Fee for {} and {}", city.getCity(), vehicleType.getVehicleType());
-        
-        Optional<RegionalBaseFee> baseFeeModel = regionalBaseFeeRepository.findByCityAndVehicleType(city, vehicleType);
-        if (baseFeeModel.isEmpty()) {
-            throw new NotFoundException("Base fee not found for given City and VehicleType");
-        }
-        BigDecimal baseFee = regionalBaseFeeRepository.fetchLatestBaseFee(city.getId(), vehicleType.getId(), dateTime);
-        log.info("Base Fee: {}", baseFee);
-        return baseFee;
-    }
 
-    private BigDecimal calculateWeatherPhenomenonExtraFee(WeatherData weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
-        log.info("Calculating Weather Phenomenon Extra Fee for {} and {}", weatherData.getWeatherPhenomenon(), vehicleType.getVehicleType());
-        if (!vehicleType.getExtraFeeApplicable() ) {
-            log.info("No WPEF applicable for selected vehicle type or weather phenomenon");
-            return BigDecimal.ZERO;
-        }
-
-        if (weatherData.getWeatherPhenomenon() == null || weatherData.getWeatherPhenomenon().trim().isEmpty()) {
-            log.info("No weather phenomenon in the weather data that would incur extra fee");
-            return BigDecimal.ZERO;
-        }
-
-
-        WeatherPhenomenonType weatherPhenomenon = weatherPhenomenonTypeRepository.findByPhenomenon(weatherData.getWeatherPhenomenon());
-        String weatherPhenomenonCategory = weatherPhenomenon.getWeatherPhenomenonCategory();
-
-        if (weatherPhenomenonCategory.equals(WeatherPhenomenonType.CATEGORY_NONE)) {
-            log.info("No extra fee for governing weather phenomenon");
-            return BigDecimal.ZERO;
-        }
-
-        WeatherPhenomenonExtraFee fee = weatherPhenomenonExtraFeeRepository
-            .findLatestByPhenomenonCategoryCodeVehicleTypeAndQueryTime(weatherPhenomenonCategory, vehicleType.getId(), dateTime);
-
-        if (fee == null) {
-            log.info("No WPEF for selected weather phenomenon and vehicle type");
-            return BigDecimal.ZERO;
-        }
-
-        if (fee.getForbidden()) {
-            throw new VehicleUsageForbiddenException(FORBIDDEN_VEHICLE);
-        }
-        log.info("WPEF: {}", fee.getExtraFee());
-        return fee.getExtraFee();
-    }
-
-    private BigDecimal calculateAirTemperatureExtraFee(WeatherData weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
-        log.info("Calculating Air Temperature Extra Fee for {} and {}", weatherData.getWeatherPhenomenon(), vehicleType.getVehicleType());
-        
-        if (!vehicleType.getExtraFeeApplicable()) {
-            log.info("No ATEF applicable for selected vehicle type or weather phenomenon");
-            return BigDecimal.ZERO;
-        }
-
-        AirTemperatureExtraFee fee = airTemperatureExtraFeeRepository
-            .findLatestByTemperatureAndVehicleTypeAndQueryTime(weatherData.getAirTemperature(), vehicleType.getId(), dateTime);
-
-        if (fee == null) {
-            log.info("No ATEF for selected temperature and vehicle type");
-            return BigDecimal.ZERO;
-        }
-        
-        log.info("ATEF: {}", fee.getExtraFee());
-        return fee.getExtraFee();
-    }
-
-    private BigDecimal calculateWindSpeedExtraFee(WeatherData weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
-        log.info("Calculating Wind Speed Extra Fee for wind speed {} and {}", weatherData.getWindSpeed(), vehicleType.getVehicleType());
-        if (!vehicleType.getExtraFeeApplicable()) {
-            log.info("No WSEF applicable for selected vehicle type or weather phenomenon");
-            return BigDecimal.ZERO;
-        }
-
-        WindSpeedExtraFee fee = windSpeedExtraFeeRepository
-            .findLatestByWindSpeedAndVehicleTypeAndQueryTime(weatherData.getWindSpeed(), vehicleType.getId(), dateTime);
-
-        if (fee == null) {
-            log.info("No WSEF for selected wind speed and vehicle type");
-            return BigDecimal.ZERO;
-        }
-
-        if (fee.getForbidden()) {
-            throw new VehicleUsageForbiddenException(FORBIDDEN_VEHICLE);
-        }
-
-        log.info("WSEF: {}", fee.getExtraFee());
-        return fee.getExtraFee();
-    }
 }
