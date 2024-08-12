@@ -12,6 +12,9 @@ import com.fujitsu.delivery_fee_api.model.fee_tables.WindSpeedExtraFee;
 import com.fujitsu.delivery_fee_api.repository.WindSpeedExtraFeeRepository;
 import com.fujitsu.delivery_fee_api.service.fee.ExtraFeeInterface;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class WindSpeedExtraFeeCalculator implements ExtraFeeInterface {
     private final WindSpeedExtraFeeRepository windSpeedExtraFeeRepository;
@@ -26,14 +29,18 @@ public class WindSpeedExtraFeeCalculator implements ExtraFeeInterface {
             return BigDecimal.ZERO;
         }
 
+        Float windSpeed = weatherData.getWindSpeed();
+        Long vehicleTypeId = vehicleType.getId();
+
         WindSpeedExtraFee fee = windSpeedExtraFeeRepository
-            .findLatestByWindSpeedAndVehicleTypeAndQueryTime(weatherData.getWindSpeed(), vehicleType.getId(), dateTime);
+            .findLatestByWindSpeedAndVehicleTypeAndQueryTime(windSpeed, vehicleTypeId, dateTime);
 
         if (fee == null) {
             return BigDecimal.ZERO;
         }
 
         if (fee.getForbidden()) {
+            log.info(" Forbidden WS for selected vehicle type, {}", windSpeed);
             throw new VehicleUsageForbiddenException();
         }
 

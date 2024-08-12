@@ -31,21 +31,22 @@ public class WeatherPhenomenonExtraFeeCalculator implements ExtraFeeInterface {
 
     @Override
     public BigDecimal calculateExtraFee(WeatherData weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
-        log.info("Calculating Weather Phenomenon Extra Fee for {} and {}", weatherData.getWeatherPhenomenon(), vehicleType.getVehicleType());
+        String weatherPhenomenon = weatherData.getWeatherPhenomenon();
+        String vehicleTypeName = vehicleType.getVehicleType();
+        
+        log.info("Calculating Weather Phenomenon Extra Fee for {} and {}", weatherPhenomenon, vehicleTypeName);
         
         if (!vehicleType.getExtraFeeApplicable() ) {
             log.info("No WPEF applicable for selected vehicle type");
             return BigDecimal.ZERO;
         }
 
-        if (weatherData.getWeatherPhenomenon() == null || weatherData.getWeatherPhenomenon().trim().isEmpty()) {
+        if (weatherPhenomenon == null || weatherPhenomenon.trim().isEmpty()) {
             log.info("No weather phenomenon in the weather data");
             return BigDecimal.ZERO;
         }
 
-        WeatherPhenomenonType weatherPhenomenon = getWeatherPhenomenonType(weatherData);
-
-        return calculateFeeBasedOnPhenomenon(weatherPhenomenon, vehicleType, dateTime);
+        return calculateFeeBasedOnPhenomenon(getWeatherPhenomenonType(weatherData), vehicleType, dateTime);
     }
 
     private WeatherPhenomenonType getWeatherPhenomenonType(WeatherData weatherData) {
@@ -58,9 +59,12 @@ public class WeatherPhenomenonExtraFeeCalculator implements ExtraFeeInterface {
             log.info("Given Weather Phenomenon will not incur Extra Fees");
             return BigDecimal.ZERO;
         }
-    
+        
+        String weatherPhenomenonCategory = weatherPhenomenon.getWeatherPhenomenonCategory();
+        Long vehicleTypeId = vehicleType.getId();
+
         WeatherPhenomenonExtraFee feeEntity = weatherPhenomenonExtraFeeRepository
-            .findLatestByPhenomenonCategoryCodeVehicleTypeAndQueryTime(weatherPhenomenon.getWeatherPhenomenonCategory(), vehicleType.getId(), dateTime);
+            .findLatestByPhenomenonCategoryCodeVehicleTypeAndQueryTime(weatherPhenomenonCategory, vehicleTypeId, dateTime);
     
         if (feeEntity == null) {
             log.info("WPfeeEntity is null. Should it?");
@@ -68,6 +72,7 @@ public class WeatherPhenomenonExtraFeeCalculator implements ExtraFeeInterface {
         }
     
         if (feeEntity.getForbidden()) {
+            log.info(" Forbidden WP for selected vehicle type, {}", weatherPhenomenonCategory);
             throw new VehicleUsageForbiddenException();
         }
     

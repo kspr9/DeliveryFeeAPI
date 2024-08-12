@@ -24,8 +24,11 @@ public class AirTemperatureExtraFeeCalculator implements ExtraFeeInterface {
             return BigDecimal.ZERO;
         }
 
+        Float airTemperature = weatherData.getAirTemperature();
+        Long vehicleTypeId = vehicleType.getId();
+        
         AirTemperatureExtraFee fee = airTemperatureExtraFeeRepository
-            .findLatestByTemperatureAndVehicleTypeAndQueryTime(weatherData.getAirTemperature(), vehicleType.getId(), dateTime);
+            .findLatestByTemperatureAndVehicleTypeAndQueryTime(airTemperature, vehicleTypeId, dateTime);
 
         return fee != null ? fee.getExtraFee() : BigDecimal.ZERO;
     }
