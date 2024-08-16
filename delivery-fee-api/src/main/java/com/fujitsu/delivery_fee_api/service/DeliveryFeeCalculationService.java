@@ -72,7 +72,7 @@ public class DeliveryFeeCalculationService {
     }
 
     private BigDecimal calculateBaseFee(City city, VehicleType vehicleType, LocalDateTime dateTime) {
-        log.info("Fetching Base Fee for {} and {}", city.getCity(), vehicleType.getVehicleType());
+        log.info("Fetching Base Fee for {} and {}", city.getName(), vehicleType.getName());
         
         return baseFeeCalculator.calculateBaseFee(city, vehicleType, dateTime);
     }
@@ -80,8 +80,8 @@ public class DeliveryFeeCalculationService {
     private void logMainRequestParameters(City city, VehicleType vehicleType, WeatherData weatherData) {
         log.info("-------------------------");
         log.info("Main request parameters: ");
-        log.info("City name: {}", city.getCity());
-        log.info("Vehicle Type: {}", vehicleType.getVehicleType());
+        log.info("City name: {}", city.getName());
+        log.info("Vehicle Type: {}", vehicleType.getName());
         log.info("Weather Data: {}", weatherData);
         log.info("Observation Timestamp: {}", weatherData.getObservationTimestamp());
         log.info("Weather Phenomenon: {}", weatherData.getWeatherPhenomenon());
@@ -91,20 +91,20 @@ public class DeliveryFeeCalculationService {
     }
 
     private City getCityByName(String cityName) {
-        return cityRepository.findByCity(cityName);
+        return cityRepository.findByName(cityName);
     }
 
     private VehicleType getVehicleTypeByName(String vehicleTypeName) {
-        return vehicleTypeRepository.findByVehicleType(vehicleTypeName);
+        return vehicleTypeRepository.findByName(vehicleTypeName);
     }
 
     private WeatherData getWeatherData(City city, LocalDateTime dateTime) {
         Integer epochSeconds = convertToEpochSeconds(dateTime);
-        List<WeatherData> weatherDataList = weatherDataRepository.findWeatherDataByWmoCodeAndTimestamp(city.getWmoCode(), epochSeconds);
-        if (weatherDataList.isEmpty()) {
-            throw new NotFoundException("Weather data not found for city: " + city + " and dateTime: " + dateTime);
+        WeatherData weatherData = weatherDataRepository.findLatestByWMOCodeAsOf(city.getWmoCode(), epochSeconds);
+        if (weatherData == null) {
+            throw new NotFoundException("Weather data not found for city: " + city.getName() + " and dateTime: " + dateTime);
         }
-        return weatherDataRepository.findLatestByWMOCodeAsOf(city.getWmoCode(), epochSeconds);
+        return weatherData;
     }
     
     private int convertToEpochSeconds(LocalDateTime dateTime) {

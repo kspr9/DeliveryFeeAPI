@@ -11,17 +11,14 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WindSpeedExtraFeeRepository extends JpaRepository<WindSpeedExtraFee, Long> {
-    @Query(value = "SELECT wsef.* FROM wind_speed_extra_fee wsef " +
-                   "INNER JOIN wind_speed_fee_vehicle wsfv ON wsef.id = wsfv.fee_id " +
-                   "WHERE (:windSpeed BETWEEN wsef.min_speed AND wsef.max_speed OR (:windSpeed >= wsef.min_speed AND wsef.max_speed IS NULL)) " +
-                   "AND wsef.is_active = true " +
-                   "AND wsef.effective_date <= :queryTime " +
-                   "AND wsfv.vehicle_type_id = :vehicleTypeId " +
-                   "ORDER BY wsef.effective_date DESC " +
-                   "LIMIT 1",
-          nativeQuery = true)
+    @Query("SELECT wsef FROM WindSpeedExtraFee wsef " +
+           "JOIN wsef.applicableVehicles v " +
+           "WHERE (:windSpeed BETWEEN wsef.minSpeed AND wsef.maxSpeed OR (:windSpeed >= wsef.minSpeed AND wsef.maxSpeed IS NULL)) " +
+           "AND wsef.isActive = true " +
+           "AND wsef.effectiveDate <= :queryTime " +
+           "AND v.id = :vehicleTypeId " +
+           "ORDER BY wsef.effectiveDate DESC")
     WindSpeedExtraFee findLatestByWindSpeedAndVehicleTypeAndQueryTime(@Param("windSpeed") Float windSpeed, 
                                                                       @Param("vehicleTypeId") Long vehicleTypeId, 
                                                                       @Param("queryTime") LocalDateTime queryTime);
 }
-

@@ -17,7 +17,7 @@ public class City {
     private Long id;
 
     @NonNull
-    private String city;
+    private String name;
 
     @NonNull
     private Integer wmoCode;

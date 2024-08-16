@@ -18,7 +18,7 @@ public class VehicleType {
     private Long id;
 
     @NonNull
-    private String vehicleType;
+    private String name;
 
     @NonNull
     private Boolean extraFeeApplicable;

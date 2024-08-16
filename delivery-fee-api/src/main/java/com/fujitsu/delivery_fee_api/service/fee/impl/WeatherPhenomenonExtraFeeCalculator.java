@@ -32,7 +32,7 @@ public class WeatherPhenomenonExtraFeeCalculator implements ExtraFeeInterface {
     @Override
     public BigDecimal calculateExtraFee(WeatherData weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
         String weatherPhenomenon = weatherData.getWeatherPhenomenon();
-        String vehicleTypeName = vehicleType.getVehicleType();
+        String vehicleTypeName = vehicleType.getName();
         
         log.info("Calculating Weather Phenomenon Extra Fee for {} and {}", weatherPhenomenon, vehicleTypeName);
         
@@ -64,7 +64,7 @@ public class WeatherPhenomenonExtraFeeCalculator implements ExtraFeeInterface {
         Long vehicleTypeId = vehicleType.getId();
 
         WeatherPhenomenonExtraFee feeEntity = weatherPhenomenonExtraFeeRepository
-            .findLatestByPhenomenonCategoryCodeVehicleTypeAndQueryTime(weatherPhenomenonCategory, vehicleTypeId, dateTime);
+            .findLatestByPhenomenonCategoryNameVehicleTypeAndQueryTime(weatherPhenomenonCategory, vehicleTypeId, dateTime);
     
         if (feeEntity == null) {
             log.info("WPfeeEntity is null. Should it?");

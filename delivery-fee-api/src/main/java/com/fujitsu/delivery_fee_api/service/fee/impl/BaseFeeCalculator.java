@@ -28,11 +28,12 @@ public class BaseFeeCalculator {
         Long cityId = city.getId();
         Long vehicleTypeId = vehicleType.getId();
         
-        Optional<RegionalBaseFee> baseFeeModel = regionalBaseFeeRepository.findByCityAndVehicleType(city, vehicleType);
-        if (baseFeeModel.isEmpty()) {
+        Optional<RegionalBaseFee> baseFeeEntityOptional = regionalBaseFeeRepository.findLatestBaseFee(cityId, vehicleTypeId, dateTime);
+        if (baseFeeEntityOptional.isEmpty()) {
             throw new NotFoundException("Base fee not found for given City and VehicleType");
         }
         
-        return regionalBaseFeeRepository.fetchLatestBaseFee(cityId, vehicleTypeId, dateTime);
+        RegionalBaseFee baseFeeEntity = baseFeeEntityOptional.get();
+        return baseFeeEntity.getBaseFee();
     }
 }

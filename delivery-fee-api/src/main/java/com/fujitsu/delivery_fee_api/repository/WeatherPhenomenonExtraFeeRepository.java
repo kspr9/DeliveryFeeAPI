@@ -11,18 +11,14 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WeatherPhenomenonExtraFeeRepository extends JpaRepository<WeatherPhenomenonExtraFee, Long> {
-    @Query(value = "SELECT wpf.* FROM weather_phenomenon_extra_fee wpf " +
-                   "INNER JOIN weather_phenomenon_fee_vehicle wpfv ON wpf.id = wpfv.fee_id " +
-                   "WHERE wpf.phenomenon_category_code = :phenomenonCategoryCode " +
-                   "AND wpf.is_active = true " +
-                   "AND wpf.effective_date <= :queryTime " +
-                   "AND wpfv.vehicle_type_id = :vehicleTypeId " +
-                   "ORDER BY wpf.effective_date DESC " +
-                   "LIMIT 1",
-          nativeQuery = true)
-    WeatherPhenomenonExtraFee findLatestByPhenomenonCategoryCodeVehicleTypeAndQueryTime(@Param("phenomenonCategoryCode") String phenomenonCategoryCode,
-                                                                                       @Param("vehicleTypeId") Long vehicleTypeId,
-                                                                                       @Param("queryTime") LocalDateTime queryTime);
+    @Query("SELECT wpf FROM WeatherPhenomenonExtraFee wpf " +
+           "JOIN wpf.applicableVehicles v " +
+           "WHERE wpf.phenomenonCategoryName = :phenomenonCategoryName " +
+           "AND wpf.isActive = true " +
+           "AND wpf.effectiveDate <= :queryTime " +
+           "AND v.id = :vehicleTypeId " +
+           "ORDER BY wpf.effectiveDate DESC")
+    WeatherPhenomenonExtraFee findLatestByPhenomenonCategoryNameVehicleTypeAndQueryTime(@Param("phenomenonCategoryName") String phenomenonCategoryName,
+                                                                                        @Param("vehicleTypeId") Long vehicleTypeId,
+                                                                                        @Param("queryTime") LocalDateTime queryTime);
 }
-
-

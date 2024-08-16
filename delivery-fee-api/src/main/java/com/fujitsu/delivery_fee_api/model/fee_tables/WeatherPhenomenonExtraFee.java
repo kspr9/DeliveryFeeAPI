@@ -16,7 +16,7 @@ public class WeatherPhenomenonExtraFee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String phenomenonCategoryCode;
+    private String phenomenonCategoryName;
 
     @ManyToMany
     @JoinTable(
@@ -32,10 +32,10 @@ public class WeatherPhenomenonExtraFee {
     private Boolean isActive;
 
     // Custom constructor without id
-    public WeatherPhenomenonExtraFee(String phenomenonCategoryCode, Set<VehicleType> applicableVehicles,
+    public WeatherPhenomenonExtraFee(String phenomenonCategoryName, Set<VehicleType> applicableVehicles,
                                      BigDecimal extraFee, Boolean forbidden, LocalDateTime effectiveDate, 
                                      Boolean isActive) {
-        this.phenomenonCategoryCode = phenomenonCategoryCode;
+        this.phenomenonCategoryName = phenomenonCategoryName;
         this.applicableVehicles = applicableVehicles;
         this.extraFee = extraFee;
         this.forbidden = forbidden;

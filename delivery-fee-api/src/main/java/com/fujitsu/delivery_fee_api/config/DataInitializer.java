@@ -4,7 +4,9 @@ package com.fujitsu.delivery_fee_api.config;
 import com.fujitsu.delivery_fee_api.model.*;
 import com.fujitsu.delivery_fee_api.model.fee_tables.*;
 import com.fujitsu.delivery_fee_api.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,31 +19,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Configuration
+@RequiredArgsConstructor
 public class DataInitializer {
 
-    @Autowired
-    private CityRepository cityRepository;
-
-    @Autowired
-    private VehicleTypeRepository vehicleTypeRepository;
-
-    @Autowired
-    private WeatherPhenomenonTypeRepository weatherPhenomenonTypeRepository;
-
-    @Autowired
-    private WeatherDataRepository weatherDataRepository;
-
-    @Autowired
-    private RegionalBaseFeeRepository regionalBaseFeeRepository;
-
-    @Autowired
-    private AirTemperatureExtraFeeRepository airTemperatureExtraFeeRepository;
-
-    @Autowired
-    private WindSpeedExtraFeeRepository windSpeedExtraFeeRepository;
-
-    @Autowired
-    private WeatherPhenomenonExtraFeeRepository weatherPhenomenonExtraFeeRepository;
+    private final CityRepository cityRepository;
+    private final VehicleTypeRepository vehicleTypeRepository;
+    private final WeatherPhenomenonTypeRepository weatherPhenomenonTypeRepository;
+    private final WeatherDataRepository weatherDataRepository;
+    private final RegionalBaseFeeRepository regionalBaseFeeRepository;
+    private final AirTemperatureExtraFeeRepository airTemperatureExtraFeeRepository;
+    private final WindSpeedExtraFeeRepository windSpeedExtraFeeRepository;
+    private final WeatherPhenomenonExtraFeeRepository weatherPhenomenonExtraFeeRepository;
 
     @Bean
     public CommandLineRunner initData() {

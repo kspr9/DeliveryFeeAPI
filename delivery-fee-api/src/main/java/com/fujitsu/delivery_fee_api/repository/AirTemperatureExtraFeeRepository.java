@@ -3,6 +3,7 @@ package com.fujitsu.delivery_fee_api.repository;
 import com.fujitsu.delivery_fee_api.model.fee_tables.AirTemperatureExtraFee;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,18 +12,14 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AirTemperatureExtraFeeRepository extends JpaRepository<AirTemperatureExtraFee, Long> {
-    @Query(value = "SELECT atef.* FROM air_temperature_extra_fee atef " +
-                   "INNER JOIN air_temperature_fee_vehicle atfv ON atef.id = atfv.fee_id " +
-                   "WHERE (:temperature BETWEEN atef.min_temp AND atef.max_temp OR (:temperature <= atef.max_temp AND atef.min_temp IS NULL)) " +
-                   "AND atef.is_active = true " +
-                   "AND atef.effective_date <= :queryTime " +
-                   "AND atfv.vehicle_type_id = :vehicleTypeId " +
-                   "ORDER BY atef.effective_date DESC " +
-                   "LIMIT 1",
-          nativeQuery = true)
-    AirTemperatureExtraFee findLatestByTemperatureAndVehicleTypeAndQueryTime(@Param("temperature") Float temperature, 
-                                                                             @Param("vehicleTypeId") Long vehicleTypeId, 
-                                                                             @Param("queryTime") LocalDateTime queryTime);
+    @Query("SELECT atef FROM AirTemperatureExtraFee atef " +
+           "JOIN atef.applicableVehicles v " +
+           "WHERE (:temperature BETWEEN atef.minTemp AND atef.maxTemp OR (:temperature <= atef.maxTemp AND atef.minTemp IS NULL)) " +
+           "AND atef.isActive = true " +
+           "AND atef.effectiveDate <= :queryTime " +
+           "AND v.id = :vehicleTypeId " +
+           "ORDER BY atef.effectiveDate DESC")
+    Optional<AirTemperatureExtraFee> findLatestByTemperatureAndVehicleTypeAndQueryTime(@Param("temperature") Float temperature, 
+                                                                                       @Param("vehicleTypeId") Long vehicleTypeId, 
+                                                                                       @Param("queryTime") LocalDateTime queryTime);
 }
-
-
