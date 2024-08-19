@@ -11,10 +11,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WeatherDataRepository extends JpaRepository<WeatherData, Long> {
-    @Query(value = "SELECT w FROM WeatherData w WHERE w.wmoCode = :wmoCode ORDER BY w.observationTimestamp DESC LIMIT 1")
+    @Query("SELECT w FROM WeatherData w WHERE w.wmoCode = :wmoCode ORDER BY w.observationTimestamp DESC LIMIT 1")
     WeatherData findLatestByWMOCode(@Param("wmoCode") int wmoCode);
 
-    @Query(value = "SELECT w FROM WeatherData w WHERE w.wmoCode = :wmoCode AND w.observationTimestamp <= :dateTime ORDER BY w.observationTimestamp DESC LIMIT 1")
+    @Query("SELECT w FROM WeatherData w WHERE w.wmoCode = :wmoCode AND w.observationTimestamp <= :dateTime ORDER BY w.observationTimestamp DESC LIMIT 1")
     WeatherData findLatestByWMOCodeAsOf(@Param("wmoCode") int wmoCode, @Param("dateTime") int dateTime);
 
     @Query("SELECT w FROM WeatherData w WHERE w.wmoCode = :wmoCode AND w.observationTimestamp <= :timestamp ORDER BY w.observationTimestamp DESC")

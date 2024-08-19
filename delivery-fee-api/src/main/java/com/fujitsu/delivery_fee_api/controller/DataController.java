@@ -51,7 +51,7 @@ public class DataController {
         
         try {
             BigDecimal totalFee = deliveryFeeService.calculateDeliveryFee(city, vehicleType, dateTime);
-            return ResponseEntity.ok(totalFee);
+            return ResponseEntity.ok(totalFee.toPlainString());
         } catch (VehicleUsageForbiddenException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (NotFoundException e) {
