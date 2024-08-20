@@ -37,9 +37,11 @@ public class DataInitializer implements CommandLineRunner {
         City tallinn = new City("Tallinn", 26038);
         City tartu = new City("Tartu", 26242);
         City parnu = new City("Pärnu", 41803);
+        City haapsalu = new City("Haapsalu", 26123);
         cityRepository.save(tallinn);
         cityRepository.save(tartu);
         cityRepository.save(parnu);
+        cityRepository.save(haapsalu);
 
         // Add test data for VehicleType
         VehicleType car = new VehicleType("Car", false);
