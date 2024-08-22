@@ -1,7 +1,6 @@
 package com.fujitsu.delivery_fee_api.controller;
 
 import com.fujitsu.delivery_fee_api.model.*;
-import com.fujitsu.delivery_fee_api.model.fee_tables.*;
 import com.fujitsu.delivery_fee_api.repository.*;
 import com.fujitsu.delivery_fee_api.service.DeliveryFeeCalculationService;
 
@@ -13,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.fujitsu.delivery_fee_api.exception.NotFoundException;
-import com.fujitsu.delivery_fee_api.exception.VehicleUsageForbiddenException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
