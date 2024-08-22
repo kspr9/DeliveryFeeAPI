@@ -3,6 +3,7 @@ package com.fujitsu.delivery_fee_api.service;
 import com.fujitsu.delivery_fee_api.dto.AirTemperatureExtraFeeDTO;
 import com.fujitsu.delivery_fee_api.dto.WindSpeedExtraFeeDTO;
 import com.fujitsu.delivery_fee_api.dto.WeatherPhenomenonExtraFeeDTO;
+import com.fujitsu.delivery_fee_api.exception.FeeExistsException;
 import com.fujitsu.delivery_fee_api.exception.NotFoundException;
 import com.fujitsu.delivery_fee_api.mapper.AirTemperatureExtraFeeMapper;
 import com.fujitsu.delivery_fee_api.mapper.WindSpeedExtraFeeMapper;
@@ -35,6 +36,7 @@ public class ExtraFeeService {
     // Air Temperature Extra Fee methods
     @Transactional
     public AirTemperatureExtraFeeDTO createAirTemperatureExtraFee(AirTemperatureExtraFeeDTO dto) {
+        checkForOverlappingAirTemperatureFee(dto);
         AirTemperatureExtraFee entity = airTemperatureExtraFeeMapper.toEntity(dto);
         entity.setEffectiveDate(LocalDateTime.now());
         entity.setIsActive(true);
@@ -73,6 +75,7 @@ public class ExtraFeeService {
     // Wind Speed Extra Fee methods
     @Transactional
     public WindSpeedExtraFeeDTO createWindSpeedExtraFee(WindSpeedExtraFeeDTO dto) {
+        checkForOverlappingWindSpeedFee(dto);
         WindSpeedExtraFee entity = windSpeedExtraFeeMapper.toEntity(dto);
         entity.setEffectiveDate(LocalDateTime.now());
         entity.setIsActive(true);
@@ -112,6 +115,7 @@ public class ExtraFeeService {
     // Weather Phenomenon Extra Fee methods
     @Transactional
     public WeatherPhenomenonExtraFeeDTO createWeatherPhenomenonExtraFee(WeatherPhenomenonExtraFeeDTO dto) {
+        checkForOverlappingWeatherPhenomenonFee(dto);
         WeatherPhenomenonExtraFee entity = weatherPhenomenonExtraFeeMapper.toEntity(dto);
         entity.setEffectiveDate(LocalDateTime.now());
         entity.setIsActive(true);
@@ -145,5 +149,29 @@ public class ExtraFeeService {
             throw new NotFoundException("Weather Phenomenon Extra Fee not found");
         }
         weatherPhenomenonExtraFeeRepository.deleteById(id);
+    }
+
+    private void checkForOverlappingAirTemperatureFee(AirTemperatureExtraFeeDTO dto) {
+        List<AirTemperatureExtraFee> overlappingFees = airTemperatureExtraFeeRepository.findOverlappingFees(
+                dto.getMinTemp(), dto.getMaxTemp(), dto.getApplicableVehicleIds());
+        if (!overlappingFees.isEmpty()) {
+            throw new FeeExistsException("An overlapping Air Temperature Extra Fee already exists");
+        }
+    }
+
+    private void checkForOverlappingWindSpeedFee(WindSpeedExtraFeeDTO dto) {
+        List<WindSpeedExtraFee> overlappingFees = windSpeedExtraFeeRepository.findOverlappingFees(
+                dto.getMinSpeed(), dto.getMaxSpeed(), dto.getApplicableVehicleIds());
+        if (!overlappingFees.isEmpty()) {
+            throw new FeeExistsException("An overlapping Wind Speed Extra Fee already exists");
+        }
+    }
+
+    private void checkForOverlappingWeatherPhenomenonFee(WeatherPhenomenonExtraFeeDTO dto) {
+        List<WeatherPhenomenonExtraFee> overlappingFees = weatherPhenomenonExtraFeeRepository.findOverlappingFees(
+                dto.getPhenomenonCategoryName(), dto.getApplicableVehicleIds());
+        if (!overlappingFees.isEmpty()) {
+            throw new FeeExistsException("An overlapping Weather Phenomenon Extra Fee already exists");
+        }
     }
 }
