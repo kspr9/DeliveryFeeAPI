@@ -1,5 +1,6 @@
 package com.fujitsu.delivery_fee_api.model;
 
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,12 @@ public class WeatherPhenomenonType {
     private String phenomenon;
 
     @NonNull
-    private String weatherPhenomenonCategory;
+    @Enumerated(EnumType.STRING)
+    private WeatherPhenomenonCategory category;
+
+    public static WeatherPhenomenonType createNoneType(String phenomenon) {
+        return new WeatherPhenomenonType(phenomenon, WeatherPhenomenonCategory.NONE);
+    }
 
     public static final String CATEGORY_NONE = "None";
 }

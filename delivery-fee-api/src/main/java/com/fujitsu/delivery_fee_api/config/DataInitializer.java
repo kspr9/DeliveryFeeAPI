@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
-
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -51,64 +51,38 @@ public class DataInitializer implements CommandLineRunner {
         vehicleTypeRepository.save(scooter);
         vehicleTypeRepository.save(bike);
         
-        
-        // Add test data for the weather phemenon - needs to have the extrafee classes inserted
-        WeatherPhenomenonType clear = new WeatherPhenomenonType("Clear", WeatherPhenomenonType.CATEGORY_NONE);
-        WeatherPhenomenonType fewClouds = new WeatherPhenomenonType("Few clouds", WeatherPhenomenonType.CATEGORY_NONE);
-        WeatherPhenomenonType variableClouds = new WeatherPhenomenonType("Variable clouds", WeatherPhenomenonType.CATEGORY_NONE);
-        WeatherPhenomenonType cloudyWithClearSpells = new WeatherPhenomenonType("Cloudy with clear spells", WeatherPhenomenonType.CATEGORY_NONE);
-        WeatherPhenomenonType overcast = new WeatherPhenomenonType("Overcast", WeatherPhenomenonType.CATEGORY_NONE);
-        WeatherPhenomenonType lightSnowShower = new WeatherPhenomenonType("Light snow shower", "SNOW OR SLEET");
-        WeatherPhenomenonType moderateSnowShower = new WeatherPhenomenonType("Moderate snow shower", "SNOW OR SLEET");
-        WeatherPhenomenonType heavySnowShower = new WeatherPhenomenonType("Heavy snow shower", "SNOW OR SLEET");
-        WeatherPhenomenonType lightShower = new WeatherPhenomenonType("Light shower", "RAIN");
-        WeatherPhenomenonType moderateShower = new WeatherPhenomenonType("Moderate shower", "RAIN");
-        WeatherPhenomenonType heavyShower = new WeatherPhenomenonType("Heavy shower", "RAIN");
-        WeatherPhenomenonType lightRain = new WeatherPhenomenonType("Light rain", "RAIN");
-        WeatherPhenomenonType moderateRain = new WeatherPhenomenonType("Moderate rain", "RAIN");
-        WeatherPhenomenonType heavyRain = new WeatherPhenomenonType("Heavy rain", "RAIN");
-        WeatherPhenomenonType glaze = new WeatherPhenomenonType("Glaze", "THUNDER, GLAZE OR HAIL");
-        WeatherPhenomenonType lightSleet = new WeatherPhenomenonType("Light sleet", "SNOW OR SLEET");
-        WeatherPhenomenonType moderateSleet = new WeatherPhenomenonType("Moderate sleet", "SNOW OR SLEET");
-        WeatherPhenomenonType lightSnowfall = new WeatherPhenomenonType("Light snowfall", "SNOW OR SLEET");
-        WeatherPhenomenonType moderateSnowfall = new WeatherPhenomenonType("Moderate snowfall", "SNOW OR SLEET");
-        WeatherPhenomenonType heavySnowfall = new WeatherPhenomenonType("Heavy snowfall", "SNOW OR SLEET");
-        WeatherPhenomenonType blowingSnow = new WeatherPhenomenonType("Blowing snow", "SNOW OR SLEET");
-        WeatherPhenomenonType driftingSnow = new WeatherPhenomenonType("Drifting snow", "SNOW OR SLEET");
-        WeatherPhenomenonType hail = new WeatherPhenomenonType("Hail", "THUNDER, GLAZE OR HAIL");
-        WeatherPhenomenonType mist = new WeatherPhenomenonType("Mist", WeatherPhenomenonType.CATEGORY_NONE);
-        WeatherPhenomenonType fog = new WeatherPhenomenonType("Fog", WeatherPhenomenonType.CATEGORY_NONE);
-        WeatherPhenomenonType thunder = new WeatherPhenomenonType("Thunder", "THUNDER, GLAZE OR HAIL");
-        WeatherPhenomenonType thunderstorm = new WeatherPhenomenonType("Thunderstorm", "THUNDER, GLAZE OR HAIL");
 
-        // Save instances to the repository
-        weatherPhenomenonTypeRepository.save(clear);
-        weatherPhenomenonTypeRepository.save(fewClouds);
-        weatherPhenomenonTypeRepository.save(variableClouds);
-        weatherPhenomenonTypeRepository.save(cloudyWithClearSpells);
-        weatherPhenomenonTypeRepository.save(overcast);
-        weatherPhenomenonTypeRepository.save(lightSnowShower);
-        weatherPhenomenonTypeRepository.save(moderateSnowShower);
-        weatherPhenomenonTypeRepository.save(heavySnowShower);
-        weatherPhenomenonTypeRepository.save(lightShower);
-        weatherPhenomenonTypeRepository.save(moderateShower);
-        weatherPhenomenonTypeRepository.save(heavyShower);
-        weatherPhenomenonTypeRepository.save(lightRain);
-        weatherPhenomenonTypeRepository.save(moderateRain);
-        weatherPhenomenonTypeRepository.save(heavyRain);
-        weatherPhenomenonTypeRepository.save(glaze);
-        weatherPhenomenonTypeRepository.save(lightSleet);
-        weatherPhenomenonTypeRepository.save(moderateSleet);
-        weatherPhenomenonTypeRepository.save(lightSnowfall);
-        weatherPhenomenonTypeRepository.save(moderateSnowfall);
-        weatherPhenomenonTypeRepository.save(heavySnowfall);
-        weatherPhenomenonTypeRepository.save(blowingSnow);
-        weatherPhenomenonTypeRepository.save(driftingSnow);
-        weatherPhenomenonTypeRepository.save(hail);
-        weatherPhenomenonTypeRepository.save(mist);
-        weatherPhenomenonTypeRepository.save(fog);
-        weatherPhenomenonTypeRepository.save(thunder);
-        weatherPhenomenonTypeRepository.save(thunderstorm);
+        List<WeatherPhenomenonType> weatherPhenomenonTypes = Arrays.asList(
+            WeatherPhenomenonType.createNoneType("Clear"),
+            WeatherPhenomenonType.createNoneType("Few clouds"),
+            WeatherPhenomenonType.createNoneType("Variable clouds"),
+            WeatherPhenomenonType.createNoneType("Cloudy with clear spells"),
+            WeatherPhenomenonType.createNoneType("Overcast"),
+            new WeatherPhenomenonType("Light snow shower", WeatherPhenomenonCategory.SNOW_OR_SLEET),
+            new WeatherPhenomenonType("Moderate snow shower", WeatherPhenomenonCategory.SNOW_OR_SLEET),
+            new WeatherPhenomenonType("Heavy snow shower", WeatherPhenomenonCategory.SNOW_OR_SLEET),
+            new WeatherPhenomenonType("Light shower", WeatherPhenomenonCategory.RAIN),
+            new WeatherPhenomenonType("Moderate shower", WeatherPhenomenonCategory.RAIN),
+            new WeatherPhenomenonType("Heavy shower", WeatherPhenomenonCategory.RAIN),
+            new WeatherPhenomenonType("Light rain", WeatherPhenomenonCategory.RAIN),
+            new WeatherPhenomenonType("Moderate rain", WeatherPhenomenonCategory.RAIN),
+            new WeatherPhenomenonType("Heavy rain", WeatherPhenomenonCategory.RAIN),
+            new WeatherPhenomenonType("Glaze", WeatherPhenomenonCategory.THUNDER_GLAZE_OR_HAIL),
+            new WeatherPhenomenonType("Light sleet", WeatherPhenomenonCategory.SNOW_OR_SLEET),
+            new WeatherPhenomenonType("Moderate sleet", WeatherPhenomenonCategory.SNOW_OR_SLEET),
+            new WeatherPhenomenonType("Light snowfall", WeatherPhenomenonCategory.SNOW_OR_SLEET),
+            new WeatherPhenomenonType("Moderate snowfall", WeatherPhenomenonCategory.SNOW_OR_SLEET),
+            new WeatherPhenomenonType("Heavy snowfall", WeatherPhenomenonCategory.SNOW_OR_SLEET),
+            new WeatherPhenomenonType("Blowing snow", WeatherPhenomenonCategory.SNOW_OR_SLEET),
+            new WeatherPhenomenonType("Drifting snow", WeatherPhenomenonCategory.SNOW_OR_SLEET),
+            new WeatherPhenomenonType("Hail", WeatherPhenomenonCategory.THUNDER_GLAZE_OR_HAIL),
+            WeatherPhenomenonType.createNoneType("Mist"),
+            WeatherPhenomenonType.createNoneType("Fog"),
+            new WeatherPhenomenonType("Thunder", WeatherPhenomenonCategory.THUNDER_GLAZE_OR_HAIL),
+            new WeatherPhenomenonType("Thunderstorm", WeatherPhenomenonCategory.THUNDER_GLAZE_OR_HAIL)
+        );
+
+        weatherPhenomenonTypeRepository.saveAll(weatherPhenomenonTypes);
         
 
         // Add test data for WeatherData
@@ -233,7 +207,7 @@ public class DataInitializer implements CommandLineRunner {
         Set<VehicleType> wpefVechicleSet = new HashSet<>(Arrays.asList(scooter, bike));
 
         WeatherPhenomenonExtraFee wpefSnowOrSleet = new WeatherPhenomenonExtraFee(
-            "SNOW OR SLEET", 
+            WeatherPhenomenonCategory.SNOW_OR_SLEET, 
             wpefVechicleSet, 
             new BigDecimal("1.0"), 
             false, 
@@ -243,7 +217,7 @@ public class DataInitializer implements CommandLineRunner {
         weatherPhenomenonExtraFeeRepository.save(wpefSnowOrSleet);
         
         WeatherPhenomenonExtraFee wpefRain = new WeatherPhenomenonExtraFee(
-            "RAIN", 
+            WeatherPhenomenonCategory.RAIN, 
             wpefVechicleSet, 
             new BigDecimal("0.5"), 
             false, 
@@ -253,7 +227,7 @@ public class DataInitializer implements CommandLineRunner {
         weatherPhenomenonExtraFeeRepository.save(wpefRain);
 
         WeatherPhenomenonExtraFee wpefThunderGlazeHail = new WeatherPhenomenonExtraFee(
-            "THUNDER, GLAZE OR HAIL", 
+            WeatherPhenomenonCategory.THUNDER_GLAZE_OR_HAIL, 
             wpefVechicleSet, 
             null, 
             true, 

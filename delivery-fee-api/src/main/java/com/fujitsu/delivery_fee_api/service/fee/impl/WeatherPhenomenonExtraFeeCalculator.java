@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.fujitsu.delivery_fee_api.exception.VehicleUsageForbiddenException;
 import com.fujitsu.delivery_fee_api.model.VehicleType;
 import com.fujitsu.delivery_fee_api.model.WeatherData;
+import com.fujitsu.delivery_fee_api.model.WeatherPhenomenonCategory;
 import com.fujitsu.delivery_fee_api.model.WeatherPhenomenonType;
 import com.fujitsu.delivery_fee_api.model.fee_tables.WeatherPhenomenonExtraFee;
 import com.fujitsu.delivery_fee_api.repository.WeatherPhenomenonExtraFeeRepository;
@@ -53,18 +54,19 @@ public class WeatherPhenomenonExtraFeeCalculator implements ExtraFeeInterface {
         return weatherPhenomenonTypeRepository.findByPhenomenon(weatherData.getWeatherPhenomenon());
     }
 
-    private BigDecimal calculateFeeBasedOnPhenomenon(WeatherPhenomenonType weatherPhenomenon, VehicleType vehicleType, LocalDateTime dateTime) {
+    private BigDecimal calculateFeeBasedOnPhenomenon(WeatherPhenomenonType weatherPhenomenonType, VehicleType vehicleType, LocalDateTime dateTime) {
         
-        if (weatherPhenomenon.getWeatherPhenomenonCategory().equals(WeatherPhenomenonType.CATEGORY_NONE)) {
+        WeatherPhenomenonCategory category = weatherPhenomenonType.getCategory();
+        
+        if (category == WeatherPhenomenonCategory.NONE) {
             log.info("Given Weather Phenomenon will not incur Extra Fees");
             return BigDecimal.ZERO;
         }
         
-        String weatherPhenomenonCategory = weatherPhenomenon.getWeatherPhenomenonCategory();
         Long vehicleTypeId = vehicleType.getId();
 
         WeatherPhenomenonExtraFee feeEntity = weatherPhenomenonExtraFeeRepository
-            .findLatestByPhenomenonCategoryNameVehicleTypeAndQueryTime(weatherPhenomenonCategory, vehicleTypeId, dateTime);
+            .findLatestByPhenomenonCategoryVehicleTypeAndQueryTime(category, vehicleTypeId, dateTime);
     
         if (feeEntity == null) {
             log.info("WPfeeEntity is null. Should it?");
@@ -72,7 +74,7 @@ public class WeatherPhenomenonExtraFeeCalculator implements ExtraFeeInterface {
         }
     
         if (feeEntity.getForbidden()) {
-            log.info(" Forbidden WP for selected vehicle type, {}", weatherPhenomenonCategory);
+            log.info("Forbidden WP for selected vehicle type, {}", category);
             throw new VehicleUsageForbiddenException();
         }
     

@@ -5,10 +5,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.fujitsu.delivery_fee_api.model.WeatherPhenomenonCategory;
+
 @Data
 public class WeatherPhenomenonExtraFeeDTO {
     private Long id;
-    private String phenomenonCategoryName;
+    private WeatherPhenomenonCategory phenomenonCategory;
     private Set<Long> applicableVehicleIds;
     private BigDecimal extraFee;
     private Boolean forbidden;

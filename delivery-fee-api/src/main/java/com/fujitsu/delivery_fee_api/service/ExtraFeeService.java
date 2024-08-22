@@ -134,7 +134,7 @@ public class ExtraFeeService {
                 .orElseThrow(() -> new NotFoundException("Weather Phenomenon Extra Fee not found"));
         
         // Update fields
-        existingFee.setPhenomenonCategoryName(dto.getPhenomenonCategoryName());
+        existingFee.setPhenomenonCategory(dto.getPhenomenonCategory());
         existingFee.setApplicableVehicles(weatherPhenomenonExtraFeeMapper.idsToVehicles(dto.getApplicableVehicleIds()));
         existingFee.setExtraFee(dto.getExtraFee());
         existingFee.setForbidden(dto.getForbidden());
@@ -169,7 +169,7 @@ public class ExtraFeeService {
 
     private void checkForOverlappingWeatherPhenomenonFee(WeatherPhenomenonExtraFeeDTO dto) {
         List<WeatherPhenomenonExtraFee> overlappingFees = weatherPhenomenonExtraFeeRepository.findOverlappingFees(
-                dto.getPhenomenonCategoryName(), dto.getApplicableVehicleIds());
+                dto.getPhenomenonCategory(), dto.getApplicableVehicleIds());
         if (!overlappingFees.isEmpty()) {
             throw new FeeExistsException("An overlapping Weather Phenomenon Extra Fee already exists");
         }

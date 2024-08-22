@@ -16,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import java.util.List;
 import java.util.Optional;
