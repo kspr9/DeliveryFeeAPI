@@ -23,6 +23,14 @@ public class WindSpeedExtraFeeCalculator implements ExtraFeeInterface {
         this.windSpeedExtraFeeRepository = windSpeedExtraFeeRepository;
     }
 
+    /**
+     * Calculates the extra fee for a given weather data, vehicle type, and date time.
+     * 
+     * @param weatherData    the weather data to calculate the extra fee for
+     * @param vehicleType    the vehicle type to calculate the extra fee for
+     * @param dateTime       the date time to calculate the extra fee for
+     * @return               the calculated extra fee, or BigDecimal.ZERO if no extra fee is applicable
+     */
     @Override
     public BigDecimal calculateExtraFee(WeatherData weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
         if (!vehicleType.getExtraFeeApplicable()) {

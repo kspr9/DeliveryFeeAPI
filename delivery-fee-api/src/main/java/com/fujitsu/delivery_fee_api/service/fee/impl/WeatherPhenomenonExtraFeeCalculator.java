@@ -30,6 +30,14 @@ public class WeatherPhenomenonExtraFeeCalculator implements ExtraFeeInterface {
         this.weatherPhenomenonExtraFeeRepository = weatherPhenomenonExtraFeeRepository;
     }
 
+    /**
+     * Calculates the extra fee based on weather phenomenon for a given vehicle type and date/time.
+     *
+     * @param weatherData    the weather data containing the weather phenomenon
+     * @param vehicleType    the type of vehicle
+     * @param dateTime       the date and time for which the extra fee is being calculated
+     * @return               the calculated extra fee as a BigDecimal value
+     */
     @Override
     public BigDecimal calculateExtraFee(WeatherData weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
         String weatherPhenomenon = weatherData.getWeatherPhenomenon();

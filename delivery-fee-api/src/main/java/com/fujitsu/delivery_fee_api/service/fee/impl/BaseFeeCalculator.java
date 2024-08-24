@@ -23,6 +23,14 @@ public class BaseFeeCalculator {
         this.regionalBaseFeeRepository = regionalBaseFeeRepository;
     }
 
+    /**
+     * Calculates the base fee for a given city and vehicle type at a specific date and time.
+     *
+     * @param  city          the city for which the base fee is to be calculated
+     * @param  vehicleType   the vehicle type for which the base fee is to be calculated
+     * @param  dateTime      the date and time at which the base fee is to be calculated
+     * @return               the calculated base fee
+     */
     public BigDecimal calculateBaseFee(City city, VehicleType vehicleType, LocalDateTime dateTime) {
         
         Long cityId = city.getId();

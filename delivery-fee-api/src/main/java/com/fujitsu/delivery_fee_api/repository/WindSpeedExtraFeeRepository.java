@@ -13,6 +13,14 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WindSpeedExtraFeeRepository extends JpaRepository<WindSpeedExtraFee, Long> {
+        /**
+         * Finds the latest WindSpeedExtraFee record that matches the given wind speed, vehicle type, and query time.
+         *
+         * @param  windSpeed     the wind speed to match against
+         * @param  vehicleTypeId the ID of the vehicle type to match against
+         * @param  queryTime     the query time to match against
+         * @return               the latest WindSpeedExtraFee record that matches the given criteria, or null if no match is found
+         */
        @Query("SELECT wsef FROM WindSpeedExtraFee wsef " +
               "JOIN wsef.applicableVehicles v " +
               "WHERE (:windSpeed BETWEEN wsef.minSpeed AND wsef.maxSpeed OR (:windSpeed >= wsef.minSpeed AND wsef.maxSpeed IS NULL)) " +
@@ -24,6 +32,14 @@ public interface WindSpeedExtraFeeRepository extends JpaRepository<WindSpeedExtr
                                                                       @Param("vehicleTypeId") Long vehicleTypeId, 
                                                                       @Param("queryTime") LocalDateTime queryTime);
 
+       /**
+        * Finds a list of WindSpeedExtraFee records that overlap with the given wind speed range and vehicle IDs.
+        *
+        * @param  minSpeed     the minimum wind speed to match against
+        * @param  maxSpeed     the maximum wind speed to match against
+        * @param  vehicleIds   the IDs of the vehicles to match against
+        * @return              a list of WindSpeedExtraFee records that overlap with the given wind speed range and vehicle IDs
+        */
        @Query("SELECT wsef FROM WindSpeedExtraFee wsef " +
               "JOIN wsef.applicableVehicles v " +
               "WHERE wsef.isActive = true " +

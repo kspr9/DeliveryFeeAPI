@@ -31,6 +31,14 @@ public class DeliveryFeeCalculationService {
     private static final String TALLINN_ZONE = "Europe/Tallinn";
     
 
+    /**
+     * Calculates the delivery fee for a given city, vehicle type, and optional date/time.
+     *
+     * @param cityName        the name of the city
+     * @param vehicleTypeName the name of the vehicle type
+     * @param dateTime        the date and time for which the delivery fee is calculated
+     * @return                the calculated delivery fee
+     */
     public BigDecimal calculateDeliveryFee(String cityName, String vehicleTypeName, LocalDateTime dateTime) {
         dateTime = Optional.ofNullable(dateTime).orElseGet(() -> {
             log.info("No dateTime provided. Using current time: {}", LocalDateTime.now());

@@ -33,7 +33,13 @@ public class ExtraFeeService {
     private final WindSpeedExtraFeeMapper windSpeedExtraFeeMapper;
     private final WeatherPhenomenonExtraFeeMapper weatherPhenomenonExtraFeeMapper;
 
-    // Air Temperature Extra Fee methods
+    /**
+     * Creates a new Air Temperature Extra Fee.
+     *
+     * @param dto The DTO containing the Air Temperature Extra Fee details.
+     * @return The created AirTemperatureExtraFeeDTO.
+     * @throws FeeExistsException if an overlapping Air Temperature Extra Fee already exists.
+     */
     @Transactional
     public AirTemperatureExtraFeeDTO createAirTemperatureExtraFee(AirTemperatureExtraFeeDTO dto) {
         checkForOverlappingAirTemperatureFee(dto);
@@ -43,12 +49,25 @@ public class ExtraFeeService {
         return airTemperatureExtraFeeMapper.toDto(airTemperatureExtraFeeRepository.save(entity));
     }
 
+    /**
+     * Retrieves all Air Temperature Extra Fees.
+     *
+     * @return A list of all AirTemperatureExtraFeeDTOs.
+     */
     public List<AirTemperatureExtraFeeDTO> getAllAirTemperatureExtraFees() {
         return airTemperatureExtraFeeRepository.findAll().stream()
                 .map(airTemperatureExtraFeeMapper::toDto)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Updates an existing Air Temperature Extra Fee.
+     *
+     * @param id The ID of the Air Temperature Extra Fee to update.
+     * @param dto The DTO containing the updated Air Temperature Extra Fee details.
+     * @return The updated AirTemperatureExtraFeeDTO.
+     * @throws NotFoundException if the Air Temperature Extra Fee with the given ID is not found.
+     */
     @Transactional
     public AirTemperatureExtraFeeDTO updateAirTemperatureExtraFee(Long id, AirTemperatureExtraFeeDTO dto) {
         AirTemperatureExtraFee existingFee = airTemperatureExtraFeeRepository.findById(id)
@@ -64,6 +83,12 @@ public class ExtraFeeService {
         return airTemperatureExtraFeeMapper.toDto(airTemperatureExtraFeeRepository.save(existingFee));
     }
 
+    /**
+     * Deletes an Air Temperature Extra Fee.
+     *
+     * @param id The ID of the Air Temperature Extra Fee to delete.
+     * @throws NotFoundException if the Air Temperature Extra Fee with the given ID is not found.
+     */
     @Transactional
     public void deleteAirTemperatureExtraFee(Long id) {
         if (!airTemperatureExtraFeeRepository.existsById(id)) {
@@ -72,7 +97,13 @@ public class ExtraFeeService {
         airTemperatureExtraFeeRepository.deleteById(id);
     }
 
-    // Wind Speed Extra Fee methods
+    /**
+     * Creates a new Wind Speed Extra Fee.
+     *
+     * @param dto The DTO containing the Wind Speed Extra Fee details.
+     * @return The created WindSpeedExtraFeeDTO.
+     * @throws FeeExistsException if an overlapping Wind Speed Extra Fee already exists.
+     */
     @Transactional
     public WindSpeedExtraFeeDTO createWindSpeedExtraFee(WindSpeedExtraFeeDTO dto) {
         checkForOverlappingWindSpeedFee(dto);
@@ -82,12 +113,25 @@ public class ExtraFeeService {
         return windSpeedExtraFeeMapper.toDto(windSpeedExtraFeeRepository.save(entity));
     }
 
+    /**
+     * Retrieves all Wind Speed Extra Fees.
+     *
+     * @return A list of all WindSpeedExtraFeeDTOs.
+     */
     public List<WindSpeedExtraFeeDTO> getAllWindSpeedExtraFees() {
         return windSpeedExtraFeeRepository.findAll().stream()
                 .map(windSpeedExtraFeeMapper::toDto)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Updates an existing Wind Speed Extra Fee.
+     *
+     * @param id The ID of the Wind Speed Extra Fee to update.
+     * @param dto The DTO containing the updated Wind Speed Extra Fee details.
+     * @return The updated WindSpeedExtraFeeDTO.
+     * @throws NotFoundException if the Wind Speed Extra Fee with the given ID is not found.
+     */
     @Transactional
     public WindSpeedExtraFeeDTO updateWindSpeedExtraFee(Long id, WindSpeedExtraFeeDTO dto) {
         WindSpeedExtraFee existingFee = windSpeedExtraFeeRepository.findById(id)
@@ -104,6 +148,12 @@ public class ExtraFeeService {
         return windSpeedExtraFeeMapper.toDto(windSpeedExtraFeeRepository.save(existingFee));
     }
 
+    /**
+     * Deletes an Wind Speed Extra Fee.
+     *
+     * @param id The ID of the Wind Speed Extra Fee to delete.
+     * @throws NotFoundException if the Wind Speed Extra Fee with the given ID is not found.
+     */
     @Transactional
     public void deleteWindSpeedExtraFee(Long id) {
         if (!windSpeedExtraFeeRepository.existsById(id)) {
@@ -112,7 +162,13 @@ public class ExtraFeeService {
         windSpeedExtraFeeRepository.deleteById(id);
     }
 
-    // Weather Phenomenon Extra Fee methods
+    /**
+     * Creates a new Weather Phenomenon Extra Fee.
+     * 
+     * @param dto The DTO containing the Weather Phenomenon Extra Fee details.
+     * @return The created WeatherPhenomenonExtraFeeDTO.
+     * @throws FeeExistsException if an overlapping Weather Phenomenon Extra Fee already exists.
+     */
     @Transactional
     public WeatherPhenomenonExtraFeeDTO createWeatherPhenomenonExtraFee(WeatherPhenomenonExtraFeeDTO dto) {
         checkForOverlappingWeatherPhenomenonFee(dto);
@@ -122,12 +178,25 @@ public class ExtraFeeService {
         return weatherPhenomenonExtraFeeMapper.toDto(weatherPhenomenonExtraFeeRepository.save(entity));
     }
 
+    /**
+     * Retrieves all Weather Phenomenon Extra Fees.
+     *
+     * @return A list of all WeatherPhenomenonExtraFeeDTOs.
+     */
     public List<WeatherPhenomenonExtraFeeDTO> getAllWeatherPhenomenonExtraFees() {
         return weatherPhenomenonExtraFeeRepository.findAll().stream()
                 .map(weatherPhenomenonExtraFeeMapper::toDto)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Updates an existing Weather Phenomenon Extra Fee.
+     * 
+     * @param id The ID of the Weather Phenomenon Extra Fee to update.
+     * @param dto The DTO containing the updated Weather Phenomenon Extra Fee details.
+     * @return The updated WeatherPhenomenonExtraFeeDTO.
+     * @throws NotFoundException if the Weather Phenomenon Extra Fee with the given ID is not found.
+     */
     @Transactional
     public WeatherPhenomenonExtraFeeDTO updateWeatherPhenomenonExtraFee(Long id, WeatherPhenomenonExtraFeeDTO dto) {
         WeatherPhenomenonExtraFee existingFee = weatherPhenomenonExtraFeeRepository.findById(id)
@@ -143,6 +212,12 @@ public class ExtraFeeService {
         return weatherPhenomenonExtraFeeMapper.toDto(weatherPhenomenonExtraFeeRepository.save(existingFee));
     }
 
+    /**
+     * Deletes an Weather Phenomenon Extra Fee.
+     * 
+     * @param id The ID of the Weather Phenomenon Extra Fee to delete.
+     * @throws NotFoundException if the Weather Phenomenon Extra Fee with the given ID is not found.
+     */
     @Transactional
     public void deleteWeatherPhenomenonExtraFee(Long id) {
         if (!weatherPhenomenonExtraFeeRepository.existsById(id)) {
@@ -151,6 +226,7 @@ public class ExtraFeeService {
         weatherPhenomenonExtraFeeRepository.deleteById(id);
     }
 
+    // Helper methods
     private void checkForOverlappingAirTemperatureFee(AirTemperatureExtraFeeDTO dto) {
         List<AirTemperatureExtraFee> overlappingFees = airTemperatureExtraFeeRepository.findOverlappingFees(
                 dto.getMinTemp(), dto.getMaxTemp(), dto.getApplicableVehicleIds());

@@ -26,11 +26,24 @@ public class BaseFeeService {
     private final VehicleTypeRepository vehicleTypeRepository;
     private final BaseFeeMapper baseFeeMapper = Mappers.getMapper(BaseFeeMapper.class);
 
+    
+    /**
+     * Retrieves all base fees from the database.
+     *
+     * @return A list of BaseFeeDTO objects representing the base fees.
+     */
     public List<BaseFeeDTO> getAllBaseFees() {
         List<RegionalBaseFee> baseFees = regionalBaseFeeRepository.findAll();
         return baseFeeMapper.toDtoList(baseFees);
     }
 
+    
+    /**
+     * Creates a new base fee based on the provided DTO.
+     *
+     * @param  baseFeeDto   the DTO containing the information for the new base fee
+     * 
+     */
     public void createBaseFee(BaseFeeDTO baseFeeDto) {
         Long cityId = baseFeeDto.getCityId();
         Long vehicleTypeId = baseFeeDto.getVehicleTypeId();
@@ -50,7 +63,13 @@ public class BaseFeeService {
         regionalBaseFeeRepository.save(newBaseFee);
 
     }
-
+    
+    /**
+     * Updates a base fee in the database based on the provided ID and DTO.
+     *
+     * @param  id          the ID of the base fee to update
+     * @param  baseFeeDto  the DTO containing the updated base fee information
+     */
     public void updateBaseFee(Long id, BaseFeeDTO baseFeeDto) {
         RegionalBaseFee existingBaseFee = regionalBaseFeeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("No BaseFee entry with that ID."));
@@ -60,6 +79,11 @@ public class BaseFeeService {
         regionalBaseFeeRepository.save(existingBaseFee);
     }
 
+    /**
+     * Deletes a base fee from the database based on the provided ID.
+     *
+     * @param  id  the ID of the base fee to delete
+     */
     public void deleteBaseFee(Long id) {
         if (!regionalBaseFeeRepository.existsById(id)) {
             throw new NotFoundException("No BaseFee entry with that ID.");

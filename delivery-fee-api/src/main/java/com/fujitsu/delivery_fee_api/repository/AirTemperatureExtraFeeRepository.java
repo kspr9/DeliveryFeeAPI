@@ -14,6 +14,14 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AirTemperatureExtraFeeRepository extends JpaRepository<AirTemperatureExtraFee, Long> {
+       /**
+        * Retrieves the latest AirTemperatureExtraFee entity that matches the given temperature, vehicle type, and query time.
+        *
+        * @param temperature the temperature to search for
+        * @param vehicleTypeId the ID of the vehicle type to search for
+        * @param queryTime the query time to search for
+        * @return the latest matching AirTemperatureExtraFee entity, or an empty Optional if no match is found
+        */
        @Query("SELECT atef FROM AirTemperatureExtraFee atef " +
               "JOIN atef.applicableVehicles v " +
               "WHERE (:temperature BETWEEN atef.minTemp AND atef.maxTemp OR (:temperature <= atef.maxTemp AND atef.minTemp IS NULL)) " +
@@ -26,6 +34,14 @@ public interface AirTemperatureExtraFeeRepository extends JpaRepository<AirTempe
                                                                                            @Param("queryTime") LocalDateTime queryTime);
 
 
+       /**
+        * Retrieves a list of AirTemperatureExtraFee entities that overlap with the given temperature range and vehicle IDs.
+        *
+        * @param minTemp the minimum temperature of the range to search for
+        * @param maxTemp the maximum temperature of the range to search for
+        * @param vehicleIds the IDs of the vehicles to search for
+        * @return the list of overlapping AirTemperatureExtraFee entities
+        */
        @Query("SELECT atef FROM AirTemperatureExtraFee atef " +
               "JOIN atef.applicableVehicles v " +
               "WHERE atef.isActive = true " +

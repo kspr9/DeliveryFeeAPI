@@ -37,16 +37,13 @@ public class WeatherDataCronService {
 
     @Scheduled(cron = "${weather.import.cron}")
     public void importWeatherData() {
-        log.info("Starting weather data import job");
-        try {
-            String xmlData = fetchWeatherData();
-            List<City> cities = cityRepository.findAll();
-            List<Integer> relevantWmoCodes = cities.stream().map(City::getWmoCode).collect(Collectors.toList());
-            List<WeatherData> weatherDataList = weatherDataParser.parseWeatherData(xmlData, relevantWmoCodes);
-            saveWeatherData(weatherDataList);
-        } catch (Exception e) {
-            log.error("Error during weather data fetch: {}", e.getMessage(), e);
-        }
+        String xmlData = fetchWeatherData();
+        
+        List<City> cities = cityRepository.findAll();
+        List<Integer> relevantWmoCodes = cities.stream().map(City::getWmoCode).collect(Collectors.toList());
+        List<WeatherData> weatherDataList = weatherDataParser.parseWeatherData(xmlData, relevantWmoCodes);
+
+        saveWeatherData(weatherDataList);
     }
     
     private String fetchWeatherData() {

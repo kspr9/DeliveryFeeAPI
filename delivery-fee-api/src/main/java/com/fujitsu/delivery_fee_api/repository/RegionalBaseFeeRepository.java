@@ -14,6 +14,15 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RegionalBaseFeeRepository extends JpaRepository<RegionalBaseFee, Long> {
+    /**
+     * Retrieves the latest base fee for a given city and vehicle type, 
+     * effective at or before the specified query time.
+     *
+     * @param cityId        the ID of the city
+     * @param vehicleTypeId the ID of the vehicle type
+     * @param queryTime     the query time
+     * @return the latest base fee, or an empty Optional if none is found
+     */
     @Query("SELECT r FROM RegionalBaseFee r " +
            "WHERE r.city.id = :cityId AND r.vehicleType.id = :vehicleTypeId AND " +
            "r.effectiveDate <= :queryTime " +
@@ -22,6 +31,13 @@ public interface RegionalBaseFeeRepository extends JpaRepository<RegionalBaseFee
                                                 @Param("vehicleTypeId") Long vehicleTypeId, 
                                                 @Param("queryTime") LocalDateTime queryTime);
 
+    /**
+     * Retrieves the current active base fee for a given city and vehicle type.
+     *
+     * @param cityId        the ID of the city
+     * @param vehicleTypeId the ID of the vehicle type
+     * @return the current active base fee, or an empty Optional if none is found
+     */
     @Query("SELECT r FROM RegionalBaseFee r " +
            "WHERE r.city.id = :cityId AND r.vehicleType.id = :vehicleTypeId AND " +
            "r.isActive = true " +
@@ -29,6 +45,7 @@ public interface RegionalBaseFeeRepository extends JpaRepository<RegionalBaseFee
     Optional<RegionalBaseFee> findCurrentActiveBaseFee(@Param("cityId") Long cityId, 
                                                        @Param("vehicleTypeId") Long vehicleTypeId);
 
+    
     Optional<RegionalBaseFee> findByCityAndVehicleType(City city, VehicleType vehicleType);
 
     Optional<RegionalBaseFee> findByCityIdAndVehicleTypeId(Long cityId, Long vehicleId);
