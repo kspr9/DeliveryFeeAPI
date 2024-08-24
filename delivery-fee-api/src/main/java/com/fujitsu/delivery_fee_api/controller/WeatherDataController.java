@@ -18,7 +18,12 @@ public class WeatherDataController {
     private final WeatherDataService weatherDataService;
 
     /**
-     * Manually triggers the import of weather data.
+     * Manually triggers the import of weather data from the external API.
+     * This endpoint can be used to force an immediate update of weather data
+     * without waiting for the scheduled import.
+     *
+     * @return ResponseEntity with no content if the import was successful
+     * @throws RuntimeException if there's an error during the import process
      */
     @PostMapping("/import")
     public ResponseEntity<Void> importWeatherData() {
@@ -26,7 +31,7 @@ public class WeatherDataController {
         return ResponseEntity.ok().build();
     }
     
-/**
+    /**
      * Retrieves a WeatherDataDTO object by its ID.
      *
      * @param id the ID of the WeatherData object to retrieve
@@ -42,7 +47,7 @@ public class WeatherDataController {
         }
     }
 
-/**
+    /**
      * Creates a new WeatherData object by saving it using the WeatherDataService.
      *
      * @param weatherDataDTO the WeatherDataDTO object to be saved
@@ -54,7 +59,7 @@ public class WeatherDataController {
         return ResponseEntity.ok(savedWeatherDataDTO);
     }
 
-/**
+    /**
      * Retrieves all WeatherData objects.
      *
      * @return a list of all WeatherDataDTO objects

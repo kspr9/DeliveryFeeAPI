@@ -32,12 +32,15 @@ public class DataController {
     private final DeliveryFeeCalculationService deliveryFeeService;
 
 
-    /**
+     /**
      * Calculates the delivery fee for a given city, vehicle type, and optional date/time.
      *
      * @param city          the name of the city
      * @param vehicleType   the type of vehicle
      * @param dateTime      the date and time of delivery (optional)
+     * @return ResponseEntity containing the calculated delivery fee as a String
+     * @throws com.fujitsu.delivery_fee_api.exception.NotFoundException if the city, vehicle type, or weather data is not found
+     * @throws com.fujitsu.delivery_fee_api.exception.VehicleUsageForbiddenException if the vehicle usage is forbidden under current weather conditions
      */
     @GetMapping("/calculateDeliveryFee")
     public ResponseEntity<String> calculateDeliveryFee(
@@ -50,17 +53,20 @@ public class DataController {
 
     /**
      * Returns all existing cities
+     * 
+     * @return Iterable of City objects representing all cities in the database
      */
     @GetMapping("/cities")
     public Iterable<City> getCities() {
         return cityRepository.findAll();
     }
 
-    /**
+     /**
      * Creates a new city.
      *
      * @param city    the city data transfer object containing the city details
-     * @return        the newly created city with its ID
+     * @return ResponseEntity containing the newly created city with its ID
+     * @throws jakarta.validation.ConstraintViolationException if the city object fails validation
      */
     @PostMapping("/city")
     public ResponseEntity<City> addCity(@Valid @RequestBody City city) {
@@ -68,8 +74,10 @@ public class DataController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCity);
     }
 
-    /**
-     * Returns all existing vehicle types
+     /**
+     * Retrieves all existing vehicle types.
+     *
+     * @return Iterable of VehicleType objects representing all vehicle types in the database
      */
     @GetMapping("/vehicleTypes")
     public Iterable<VehicleType> getVehicleTypes() {
@@ -80,7 +88,8 @@ public class DataController {
      * Creates a new vehicle type.
      *
      * @param vehicleType   the vehicle type data transfer object containing the vehicle type details
-     * @return              the newly created vehicle type with its ID
+     * @return ResponseEntity containing the newly created vehicle type with its ID
+     * @throws jakarta.validation.ConstraintViolationException if the vehicleType object fails validation
      */
     @PostMapping("/vehicleType")
     public ResponseEntity<VehicleType> addVehicleType(@Valid @RequestBody VehicleType vehicleType) {
@@ -89,8 +98,9 @@ public class DataController {
     }
 
     /**
-     * Returns all existing weather data
-     * 
+     * Retrieves all existing weather data.
+     *
+     * @return Iterable of WeatherData objects representing all weather data in the database
      */
     @GetMapping("/weatherData")
     public Iterable<WeatherData> getWeatherData() {
@@ -100,8 +110,9 @@ public class DataController {
     /**
      * Creates a new weather data entry.
      *
-     * @param weatherData	the weather data transfer object containing the weather data details
-     * @return           	the newly created weather data with its ID
+     * @param weatherData   the weather data transfer object containing the weather data details
+     * @return ResponseEntity containing the newly created weather data with its ID
+     * @throws jakarta.validation.ConstraintViolationException if the weatherData object fails validation
      */
     @PostMapping("/weatherData")
     public ResponseEntity<WeatherData> addWeatherData(@Valid @RequestBody WeatherData weatherData) {
@@ -110,8 +121,9 @@ public class DataController {
     }
 
     /**
-     * Returns all existing weather phenomenon entries
-     * 
+     * Retrieves all existing weather phenomenon entries.
+     *
+     * @return Iterable of WeatherPhenomenonType objects representing all weather phenomenon types in the database
      */
     @GetMapping("/weatherPhenomenonType")
     public Iterable<WeatherPhenomenonType> getWeatherPhenomenonType() {
@@ -121,8 +133,9 @@ public class DataController {
     /**
      * Creates a new weather phenomenon type.
      *
-     * @param weatherPhenomenonType	the weather phenomenon type data transfer object containing the weather phenomenon type details
-     * @return         				the newly created weather phenomenon type with its ID
+     * @param weatherPhenomenonType the weather phenomenon type data transfer object containing the weather phenomenon type details
+     * @return ResponseEntity containing the newly created weather phenomenon type with its ID
+     * @throws jakarta.validation.ConstraintViolationException if the weatherPhenomenonType object fails validation
      */
     @PostMapping("/weatherPhenomenonType")
     public ResponseEntity<WeatherPhenomenonType> addWeatherPhenomenonType(@Valid @RequestBody WeatherPhenomenonType weatherPhenomenonType) {
