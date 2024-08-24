@@ -1,48 +1,67 @@
 package com.fujitsu.delivery_fee_api.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fujitsu.delivery_fee_api.dto.WeatherDataDTO;
+
+import com.fujitsu.delivery_fee_api.service.WeatherDataService;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.fujitsu.delivery_fee_api.model.WeatherData;
-import com.fujitsu.delivery_fee_api.service.WeatherDataCronService;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/weather")
+@RequiredArgsConstructor
 public class WeatherDataController {
 
-    @Autowired
-    private WeatherDataCronService weatherDataCronService;
+    private final WeatherDataService weatherDataService;
 
     /**
      * Manually triggers the import of weather data.
      */
     @PostMapping("/import")
     public ResponseEntity<Void> importWeatherData() {
-        weatherDataCronService.importWeatherData();
+        weatherDataService.importWeatherData();
         return ResponseEntity.ok().build();
     }
     
-    /**
-     * Retrieves a WeatherData object by its ID.
+/**
+     * Retrieves a WeatherDataDTO object by its ID.
      *
      * @param id the ID of the WeatherData object to retrieve
-     * @return the WeatherData object with the specified ID, or null if not found
+     * @return the WeatherDataDTO object with the specified ID, or null if not found
      */
     @GetMapping("/{id}")
-    public WeatherData getWeatherData(@PathVariable Long id) {
-        return weatherDataCronService.getWeatherData(id);
+    public ResponseEntity<WeatherDataDTO> getWeatherData(@PathVariable Long id) {
+        WeatherDataDTO weatherDataDTO = weatherDataService.getWeatherData(id);
+        if (weatherDataDTO != null) {
+            return ResponseEntity.ok(weatherDataDTO);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    /**
-     * Creates a new WeatherData object by saving it using the WeatherDataCronService.
+/**
+     * Creates a new WeatherData object by saving it using the WeatherDataService.
      *
-     * @param weatherData the WeatherData object to be saved
-     * @return the newly created WeatherData object
+     * @param weatherDataDTO the WeatherDataDTO object to be saved
+     * @return the newly created WeatherDataDTO object
      */
-    @PostMapping("/createWeatherData")
-    public WeatherData createWeatherData(@RequestBody WeatherData weatherData) {
-        return weatherDataCronService.saveWeatherData(weatherData);
+    @PostMapping
+    public ResponseEntity<WeatherDataDTO> createWeatherData(@RequestBody WeatherDataDTO weatherDataDTO) {
+        WeatherDataDTO savedWeatherDataDTO = weatherDataService.saveWeatherData(weatherDataDTO);
+        return ResponseEntity.ok(savedWeatherDataDTO);
     }
 
+/**
+     * Retrieves all WeatherData objects.
+     *
+     * @return a list of all WeatherDataDTO objects
+     */
+    @GetMapping
+    public ResponseEntity<List<WeatherDataDTO>> getAllWeatherData() {
+        List<WeatherDataDTO> allWeatherData = weatherDataService.getAllWeatherData();
+        return ResponseEntity.ok(allWeatherData);
+    }
 }

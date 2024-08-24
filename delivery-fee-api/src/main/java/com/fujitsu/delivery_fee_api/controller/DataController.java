@@ -1,6 +1,10 @@
 package com.fujitsu.delivery_fee_api.controller;
 
-import com.fujitsu.delivery_fee_api.model.*;
+
+import com.fujitsu.delivery_fee_api.model.City;
+import com.fujitsu.delivery_fee_api.model.VehicleType;
+import com.fujitsu.delivery_fee_api.model.WeatherData;
+import com.fujitsu.delivery_fee_api.model.WeatherPhenomenonType;
 import com.fujitsu.delivery_fee_api.repository.*;
 import com.fujitsu.delivery_fee_api.service.DeliveryFeeCalculationService;
 
@@ -44,7 +48,13 @@ public class DataController {
         return ResponseEntity.ok(totalFee.toPlainString());
     }
 
-
+    /**
+     * Returns all existing cities
+     */
+    @GetMapping("/cities")
+    public Iterable<City> getCities() {
+        return cityRepository.findAll();
+    }
 
     /**
      * Creates a new city.
@@ -58,6 +68,13 @@ public class DataController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCity);
     }
 
+    /**
+     * Returns all existing vehicle types
+     */
+    @GetMapping("/vehicleTypes")
+    public Iterable<VehicleType> getVehicleTypes() {
+        return vehicleTypeRepository.findAll();
+    }
     
     /**
      * Creates a new vehicle type.
@@ -72,6 +89,15 @@ public class DataController {
     }
 
     /**
+     * Returns all existing weather data
+     * 
+     */
+    @GetMapping("/weatherData")
+    public Iterable<WeatherData> getWeatherData() {
+        return weatherDataRepository.findAll();
+    }
+
+    /**
      * Creates a new weather data entry.
      *
      * @param weatherData	the weather data transfer object containing the weather data details
@@ -83,6 +109,14 @@ public class DataController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedWeatherData);
     }
 
+    /**
+     * Returns all existing weather phenomenon entries
+     * 
+     */
+    @GetMapping("/weatherPhenomenonType")
+    public Iterable<WeatherPhenomenonType> getWeatherPhenomenonType() {
+        return weatherPhenomenonTypeRepository.findAll();
+    }
 
     /**
      * Creates a new weather phenomenon type.

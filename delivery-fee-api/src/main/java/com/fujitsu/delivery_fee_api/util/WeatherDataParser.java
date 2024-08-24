@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -29,10 +30,33 @@ public class WeatherDataParser {
         }
     }
 
+    public ObservationsDTO parseWeatherDataToDTO(String xmlData, List<Integer> relevantWmoCodes) {
+        try {
+            ObservationsDTO observations = parseXmlData(xmlData);
+            return filterRelevantObservations(observations, relevantWmoCodes);
+        } catch (Exception e) {
+            log.error("Error parsing weather data: {}", e.getMessage(), e);
+            return new ObservationsDTO();
+        }
+    }
+
     private ObservationsDTO parseXmlData(String data) throws Exception {
         return xmlMapper.readValue(data, ObservationsDTO.class);
     }
 
+    private ObservationsDTO filterRelevantObservations(ObservationsDTO observations, List<Integer> relevantWmoCodes) {
+        ObservationsDTO filteredObservations = new ObservationsDTO();
+        
+        List<StationDTO> filteredStations = observations.getStations().stream()
+                .filter(station -> isRelevantStationForDTO(station, relevantWmoCodes))
+                .collect(Collectors.toList());
+
+        filteredObservations.setTimestamp(observations.getTimestamp());
+        filteredObservations.setStations(filteredStations);
+
+        return filteredObservations;
+    }
+    
     private List<WeatherData> createWeatherDataList(ObservationsDTO observations, List<Integer> relevantWmoCodes) {
         List<WeatherData> weatherDataList = new ArrayList<>();
         int observationTimestamp = Integer.parseInt(observations.getTimestamp());
@@ -79,5 +103,15 @@ public class WeatherDataParser {
 
     private boolean isRelevantStation(int wmoCode, List<Integer> relevantWmoCodes) {
         return relevantWmoCodes.contains(wmoCode);
+    }
+
+    private boolean isRelevantStationForDTO(StationDTO station, List<Integer> relevantWmoCodes) {
+        try {
+            int wmoCode = Integer.parseInt(station.getWmocode());
+            return relevantWmoCodes.contains(wmoCode);
+        } catch (NumberFormatException e) {
+            log.warn("Invalid WMO code for station {}: {}", station.getName(), station.getWmocode());
+            return false;
+        }
     }
 }
