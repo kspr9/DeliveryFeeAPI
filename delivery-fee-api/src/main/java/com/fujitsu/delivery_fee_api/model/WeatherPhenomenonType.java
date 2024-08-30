@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.NonNull;
 
+
+/**
+ * Represents a weather phenomenon entity in the database.
+ * This class is used to model different weather phenomena and map them to their extra fee categories.
+ */
 @Data
 @NoArgsConstructor(force = true)
 @RequiredArgsConstructor

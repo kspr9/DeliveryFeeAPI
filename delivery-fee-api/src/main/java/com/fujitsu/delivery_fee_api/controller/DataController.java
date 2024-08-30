@@ -5,11 +5,13 @@ import com.fujitsu.delivery_fee_api.model.City;
 import com.fujitsu.delivery_fee_api.model.VehicleType;
 import com.fujitsu.delivery_fee_api.model.WeatherData;
 import com.fujitsu.delivery_fee_api.model.WeatherPhenomenonType;
-import com.fujitsu.delivery_fee_api.repository.*;
+import com.fujitsu.delivery_fee_api.repository.WeatherDataRepository;
+import com.fujitsu.delivery_fee_api.service.DataService;
 import com.fujitsu.delivery_fee_api.service.DeliveryFeeCalculationService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +27,9 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public class DataController {
 
-    private final CityRepository cityRepository;
-    private final VehicleTypeRepository vehicleTypeRepository;
     private final WeatherDataRepository weatherDataRepository;
-    private final WeatherPhenomenonTypeRepository weatherPhenomenonTypeRepository;
     private final DeliveryFeeCalculationService deliveryFeeService;
+    private final DataService dataService;
 
 
      /**
@@ -51,97 +51,110 @@ public class DataController {
         return ResponseEntity.ok(totalFee.toPlainString());
     }
 
-    /**
-     * Returns all existing cities
-     * 
-     * @return Iterable of City objects representing all cities in the database
-     */
-    @GetMapping("/cities")
-    public Iterable<City> getCities() {
-        return cityRepository.findAll();
-    }
-
-     /**
-     * Creates a new city.
-     *
-     * @param city    the city data transfer object containing the city details
-     * @return ResponseEntity containing the newly created city with its ID
-     * @throws jakarta.validation.ConstraintViolationException if the city object fails validation
-     */
-    @PostMapping("/city")
-    public ResponseEntity<City> addCity(@Valid @RequestBody City city) {
-        City savedCity = cityRepository.save(city);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedCity);
-    }
-
-     /**
-     * Retrieves all existing vehicle types.
-     *
-     * @return Iterable of VehicleType objects representing all vehicle types in the database
-     */
-    @GetMapping("/vehicleTypes")
-    public Iterable<VehicleType> getVehicleTypes() {
-        return vehicleTypeRepository.findAll();
-    }
-    
-    /**
-     * Creates a new vehicle type.
-     *
-     * @param vehicleType   the vehicle type data transfer object containing the vehicle type details
-     * @return ResponseEntity containing the newly created vehicle type with its ID
-     * @throws jakarta.validation.ConstraintViolationException if the vehicleType object fails validation
-     */
-    @PostMapping("/vehicleType")
-    public ResponseEntity<VehicleType> addVehicleType(@Valid @RequestBody VehicleType vehicleType) {
-        VehicleType savedVehicleType = vehicleTypeRepository.save(vehicleType);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedVehicleType);
-    }
-
-    /**
-     * Retrieves all existing weather data.
-     *
-     * @return Iterable of WeatherData objects representing all weather data in the database
-     */
     @GetMapping("/weatherData")
     public Iterable<WeatherData> getWeatherData() {
         return weatherDataRepository.findAll();
     }
 
-    /**
-     * Creates a new weather data entry.
-     *
-     * @param weatherData   the weather data transfer object containing the weather data details
-     * @return ResponseEntity containing the newly created weather data with its ID
-     * @throws jakarta.validation.ConstraintViolationException if the weatherData object fails validation
-     */
-    @PostMapping("/weatherData")
-    public ResponseEntity<WeatherData> addWeatherData(@Valid @RequestBody WeatherData weatherData) {
-        WeatherData savedWeatherData = weatherDataRepository.save(weatherData);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedWeatherData);
+    // City endpoints
+    @GetMapping("/cities")
+    public ResponseEntity<List<City>> getAllCities() {
+        return ResponseEntity.ok(dataService.getAllCities());
     }
 
-    /**
-     * Retrieves all existing weather phenomenon entries.
-     *
-     * @return Iterable of WeatherPhenomenonType objects representing all weather phenomenon types in the database
-     */
-    @GetMapping("/weatherPhenomenonType")
-    public Iterable<WeatherPhenomenonType> getWeatherPhenomenonType() {
-        return weatherPhenomenonTypeRepository.findAll();
+    @GetMapping("/cities/{id}")
+    public ResponseEntity<City> getCityById(@PathVariable Long id) {
+        return dataService.getCityById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Creates a new weather phenomenon type.
-     *
-     * @param weatherPhenomenonType the weather phenomenon type data transfer object containing the weather phenomenon type details
-     * @return ResponseEntity containing the newly created weather phenomenon type with its ID
-     * @throws jakarta.validation.ConstraintViolationException if the weatherPhenomenonType object fails validation
-     */
-    @PostMapping("/weatherPhenomenonType")
-    public ResponseEntity<WeatherPhenomenonType> addWeatherPhenomenonType(@Valid @RequestBody WeatherPhenomenonType weatherPhenomenonType) {
-        WeatherPhenomenonType savedWeatherPhenomenonType = weatherPhenomenonTypeRepository.save(weatherPhenomenonType);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedWeatherPhenomenonType);
+    @PostMapping("/cities")
+    public ResponseEntity<City> createCity(@Valid @RequestBody City city) {
+        City createdCity = dataService.createCity(city);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCity);
     }
+
+    @PutMapping("/cities/{id}")
+    public ResponseEntity<City> updateCity(@PathVariable Long id, @Valid @RequestBody City cityDetails) {
+        return dataService.updateCity(id, cityDetails)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/cities/{id}")
+    public ResponseEntity<Void> deleteCity(@PathVariable Long id) {
+        return dataService.deleteCity(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
+    }
+
+    // VehicleType endpoints
+    @GetMapping("/vehicleTypes")
+    public ResponseEntity<List<VehicleType>> getAllVehicleTypes() {
+        return ResponseEntity.ok(dataService.getAllVehicleTypes());
+    }
+
+    @GetMapping("/vehicleTypes/{id}")
+    public ResponseEntity<VehicleType> getVehicleTypeById(@PathVariable Long id) {
+        return dataService.getVehicleTypeById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/vehicleTypes")
+    public ResponseEntity<VehicleType> createVehicleType(@Valid @RequestBody VehicleType vehicleType) {
+        VehicleType createdVehicleType = dataService.createVehicleType(vehicleType);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdVehicleType);
+    }
+
+    @PutMapping("/vehicleTypes/{id}")
+    public ResponseEntity<VehicleType> updateVehicleType(@PathVariable Long id, @Valid @RequestBody VehicleType vehicleTypeDetails) {
+        return dataService.updateVehicleType(id, vehicleTypeDetails)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/vehicleTypes/{id}")
+    public ResponseEntity<Void> deleteVehicleType(@PathVariable Long id) {
+        return dataService.deleteVehicleType(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
+    }
+
+    // WeatherPhenomenonType endpoints
+    @GetMapping("/weatherPhenomenonTypes")
+    public ResponseEntity<List<WeatherPhenomenonType>> getAllWeatherPhenomenonTypes() {
+        return ResponseEntity.ok(dataService.getAllWeatherPhenomenonTypes());
+    }
+
+    @GetMapping("/weatherPhenomenonTypes/{id}")
+    public ResponseEntity<WeatherPhenomenonType> getWeatherPhenomenonTypeById(@PathVariable Long id) {
+        return dataService.getWeatherPhenomenonTypeById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/weatherPhenomenonTypes")
+    public ResponseEntity<WeatherPhenomenonType> createWeatherPhenomenonType(@Valid @RequestBody WeatherPhenomenonType weatherPhenomenonType) {
+        WeatherPhenomenonType createdWeatherPhenomenonType = dataService.createWeatherPhenomenonType(weatherPhenomenonType);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdWeatherPhenomenonType);
+    }
+
+    @PutMapping("/weatherPhenomenonTypes/{id}")
+    public ResponseEntity<WeatherPhenomenonType> updateWeatherPhenomenonType(@PathVariable Long id, @Valid @RequestBody WeatherPhenomenonType weatherPhenomenonTypeDetails) {
+        return dataService.updateWeatherPhenomenonType(id, weatherPhenomenonTypeDetails)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/weatherPhenomenonTypes/{id}")
+    public ResponseEntity<Void> deleteWeatherPhenomenonType(@PathVariable Long id) {
+        return dataService.deleteWeatherPhenomenonType(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
+    }
+    
 
 
 

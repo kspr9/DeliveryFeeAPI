@@ -17,6 +17,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Slf4j
 @Service
@@ -52,8 +53,10 @@ public class DeliveryFeeCalculationService {
         WeatherData weatherData = getWeatherData(city, dateTime);
     
         logMainRequestParameters(city, vehicleType, weatherData);
-    
-        return calculateTotalFee(city, vehicleType, weatherData, dateTime);
+        
+        BigDecimal totalFee = calculateTotalFee(city, vehicleType, weatherData, dateTime);
+        
+        return totalFee.setScale(2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal calculateTotalFee(City city, VehicleType vehicleType, WeatherData weatherData, LocalDateTime dateTime) {
