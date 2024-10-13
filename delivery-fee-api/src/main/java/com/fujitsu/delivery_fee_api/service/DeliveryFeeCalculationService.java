@@ -1,5 +1,6 @@
 package com.fujitsu.delivery_fee_api.service;
 
+import com.fujitsu.delivery_fee_api.dto.WeatherDataDTO;
 import com.fujitsu.delivery_fee_api.exception.NotFoundException;
 
 import com.fujitsu.delivery_fee_api.model.*;
@@ -7,15 +8,15 @@ import com.fujitsu.delivery_fee_api.model.*;
 import com.fujitsu.delivery_fee_api.repository.*;
 import com.fujitsu.delivery_fee_api.service.fee.ExtraFeeInterface;
 import com.fujitsu.delivery_fee_api.service.fee.impl.BaseFeeCalculator;
+import com.fujitsu.delivery_fee_api.util.TimeUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+
 import java.util.List;
-import java.util.Optional;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -23,13 +24,12 @@ import java.math.RoundingMode;
 @Service
 @RequiredArgsConstructor
 public class DeliveryFeeCalculationService {
-    private final WeatherDataRepository weatherDataRepository;
+    private final WeatherDataService weatherDataService;
     private final CityRepository cityRepository;
     private final VehicleTypeRepository vehicleTypeRepository;
     private final List<ExtraFeeInterface> extraFeeCalculators;
     private final BaseFeeCalculator baseFeeCalculator;
 
-    private static final String TALLINN_ZONE = "Europe/Tallinn";
     
 
     /**
@@ -41,16 +41,13 @@ public class DeliveryFeeCalculationService {
      * @return                the calculated delivery fee
      */
     public BigDecimal calculateDeliveryFee(String cityName, String vehicleTypeName, LocalDateTime dateTime) {
-        dateTime = Optional.ofNullable(dateTime).orElseGet(() -> {
-            log.info("No dateTime provided. Using current time: {}", LocalDateTime.now());
-            return LocalDateTime.now();
-        });
+        dateTime = TimeUtils.getCurrentDateTimeIfNull(dateTime);
     
         log.info("Calculating delivery fee for city: {}, vehicleType: {} and dateTime: {}", cityName, vehicleTypeName, dateTime);
     
         City city = getCityByName(cityName);
         VehicleType vehicleType = getVehicleTypeByName(vehicleTypeName);
-        WeatherData weatherData = getWeatherData(city, dateTime);
+        WeatherDataDTO weatherData = getWeatherData(city, dateTime);
     
         logMainRequestParameters(city, vehicleType, weatherData);
         
@@ -59,7 +56,7 @@ public class DeliveryFeeCalculationService {
         return totalFee.setScale(2, RoundingMode.HALF_UP);
     }
 
-    private BigDecimal calculateTotalFee(City city, VehicleType vehicleType, WeatherData weatherData, LocalDateTime dateTime) {
+    private BigDecimal calculateTotalFee(City city, VehicleType vehicleType, WeatherDataDTO weatherData, LocalDateTime dateTime) {
         
         BigDecimal baseFee = calculateBaseFee(city, vehicleType, dateTime);
         log.info("Base Fee: {}", baseFee);
@@ -72,7 +69,7 @@ public class DeliveryFeeCalculationService {
         return totalFee;
     }
 
-    private BigDecimal calculateTotalExtraFee(WeatherData weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
+    private BigDecimal calculateTotalExtraFee(WeatherDataDTO weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
         return extraFeeCalculators.stream()
             .map(calculator -> {
                 BigDecimal fee = calculator.calculateExtraFee(weatherData, vehicleType, dateTime);
@@ -88,7 +85,7 @@ public class DeliveryFeeCalculationService {
         return baseFeeCalculator.calculateBaseFee(city, vehicleType, dateTime);
     }
 
-    private void logMainRequestParameters(City city, VehicleType vehicleType, WeatherData weatherData) {
+    private void logMainRequestParameters(City city, VehicleType vehicleType, WeatherDataDTO weatherData) {
         log.info("-------------------------");
         log.info("Main request parameters: ");
         log.info("City name: {}", city.getName());
@@ -102,27 +99,32 @@ public class DeliveryFeeCalculationService {
     }
 
     private City getCityByName(String cityName) {
-        return cityRepository.findByName(cityName);
+        City city = cityRepository.findByName(cityName);
+        if (city == null) {
+            throw new NotFoundException("City not found: " + cityName);
+        }
+        return city;
     }
 
     private VehicleType getVehicleTypeByName(String vehicleTypeName) {
-        return vehicleTypeRepository.findByName(vehicleTypeName);
+        VehicleType vehicleType = vehicleTypeRepository.findByName(vehicleTypeName);
+        if (vehicleType == null) {
+            throw new NotFoundException("Vehicle type not found: " + vehicleTypeName);
+        }
+        return vehicleType;
     }
 
-    private WeatherData getWeatherData(City city, LocalDateTime dateTime) {
-        Integer epochSeconds = convertToEpochSeconds(dateTime);
-        WeatherData weatherData = weatherDataRepository.findLatestByWMOCodeAsOf(city.getWmoCode(), epochSeconds);
-        if (weatherData == null) {
+    private WeatherDataDTO getWeatherData(City city, LocalDateTime dateTime) {
+
+        String cityName = city.getName();
+
+        WeatherDataDTO weatherDataDTO = weatherDataService.getWeatherDataByCityName(cityName, dateTime);
+        if (weatherDataDTO == null) {
             throw new NotFoundException("Weather data not found for city: " + city.getName() + " and dateTime: " + dateTime);
         }
-        return weatherData;
+        return weatherDataDTO;
     }
-    
-    private int convertToEpochSeconds(LocalDateTime dateTime) {
-        ZoneId zoneId = ZoneId.of(TALLINN_ZONE);
-        ZonedDateTime zonedDateTime = dateTime.atZone(zoneId);
-        return Math.toIntExact(zonedDateTime.toEpochSecond());
-    }
+
 
 
 }

@@ -85,6 +85,7 @@ Calculates the delivery fee based on city, vehicle type, and optionally a specif
 **Example Request:**
 ```bash
 curl -X GET "http://localhost:8080/api/delivery/city/Tallinn/vehicle/Car?dateTime=2023-06-10T14:30:00"
+curl -X GET "http://localhost:8080/api/delivery/city/Tallinn/vehicle/Car"
 ```
 
 ### Weather Data Controller

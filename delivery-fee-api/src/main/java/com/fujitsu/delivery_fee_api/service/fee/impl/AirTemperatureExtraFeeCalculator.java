@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Component;
 
+import com.fujitsu.delivery_fee_api.dto.WeatherDataDTO;
 import com.fujitsu.delivery_fee_api.model.VehicleType;
-import com.fujitsu.delivery_fee_api.model.WeatherData;
 import com.fujitsu.delivery_fee_api.model.fee_tables.AirTemperatureExtraFee;
 import com.fujitsu.delivery_fee_api.repository.AirTemperatureExtraFeeRepository;
 import com.fujitsu.delivery_fee_api.service.fee.ExtraFeeInterface;
@@ -31,7 +31,7 @@ public class AirTemperatureExtraFeeCalculator implements ExtraFeeInterface {
      * @return               the calculated extra fee, or BigDecimal.ZERO if no extra fee is applicable
      */
     @Override
-    public BigDecimal calculateExtraFee(WeatherData weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
+    public BigDecimal calculateExtraFee(WeatherDataDTO weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
         if (!vehicleType.getExtraFeeApplicable()) {
             log.info("ATEF not applicable for selected vehicle type, {}", vehicleType.getName());
             return BigDecimal.ZERO;

@@ -5,9 +5,12 @@ import com.fujitsu.delivery_fee_api.dto.WeatherDataDTO;
 import com.fujitsu.delivery_fee_api.service.WeatherDataService;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -39,13 +42,27 @@ public class WeatherDataController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<WeatherDataDTO> getWeatherData(@PathVariable Long id) {
-        WeatherDataDTO weatherDataDTO = weatherDataService.getWeatherData(id);
+        WeatherDataDTO weatherDataDTO = weatherDataService.getWeatherDataByCityId(id);
         if (weatherDataDTO != null) {
             return ResponseEntity.ok(weatherDataDTO);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/city/{city}")
+    public ResponseEntity<WeatherDataDTO> getWeatherData(
+        @PathVariable("city") String cityName,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime) {
+        WeatherDataDTO weatherDataDTO = weatherDataService.getWeatherDataByCityName(cityName, dateTime);
+        if (weatherDataDTO != null) {
+            return ResponseEntity.ok(weatherDataDTO);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
 
     /**
      * Creates a new WeatherData object by saving it using the WeatherDataService.

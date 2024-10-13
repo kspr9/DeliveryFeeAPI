@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Component;
 
+import com.fujitsu.delivery_fee_api.dto.WeatherDataDTO;
 import com.fujitsu.delivery_fee_api.exception.VehicleUsageForbiddenException;
 import com.fujitsu.delivery_fee_api.model.VehicleType;
-import com.fujitsu.delivery_fee_api.model.WeatherData;
 import com.fujitsu.delivery_fee_api.model.WeatherPhenomenonCategory;
 import com.fujitsu.delivery_fee_api.model.WeatherPhenomenonType;
 import com.fujitsu.delivery_fee_api.model.fee_tables.WeatherPhenomenonExtraFee;
@@ -39,7 +39,7 @@ public class WeatherPhenomenonExtraFeeCalculator implements ExtraFeeInterface {
      * @return               the calculated extra fee as a BigDecimal value
      */
     @Override
-    public BigDecimal calculateExtraFee(WeatherData weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
+    public BigDecimal calculateExtraFee(WeatherDataDTO weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
         String weatherPhenomenon = weatherData.getWeatherPhenomenon();
         String vehicleTypeName = vehicleType.getName();
         
@@ -51,15 +51,15 @@ public class WeatherPhenomenonExtraFeeCalculator implements ExtraFeeInterface {
         }
 
         if (weatherPhenomenon == null || weatherPhenomenon.trim().isEmpty()) {
-            log.info("No weather phenomenon in the weather data");
+            log.info("No weather phenomenon in the weather data that incurs extra fees");
             return BigDecimal.ZERO;
         }
 
-        return calculateFeeBasedOnPhenomenon(getWeatherPhenomenonType(weatherData), vehicleType, dateTime);
+        return calculateFeeBasedOnPhenomenon(getWeatherPhenomenonType(weatherPhenomenon), vehicleType, dateTime);
     }
 
-    private WeatherPhenomenonType getWeatherPhenomenonType(WeatherData weatherData) {
-        return weatherPhenomenonTypeRepository.findByPhenomenon(weatherData.getWeatherPhenomenon());
+    private WeatherPhenomenonType getWeatherPhenomenonType(String weatherPhenomenon) {
+        return weatherPhenomenonTypeRepository.findByPhenomenon(weatherPhenomenon);
     }
 
     private BigDecimal calculateFeeBasedOnPhenomenon(WeatherPhenomenonType weatherPhenomenonType, VehicleType vehicleType, LocalDateTime dateTime) {

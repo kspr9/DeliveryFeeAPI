@@ -2,6 +2,7 @@ package com.fujitsu.delivery_fee_api.service;
 
 import com.fujitsu.delivery_fee_api.repository.CityRepository;
 import com.fujitsu.delivery_fee_api.repository.WeatherDataRepository;
+import com.fujitsu.delivery_fee_api.util.TimeUtils;
 import com.fujitsu.delivery_fee_api.util.WeatherDataParser;
 import com.fujitsu.delivery_fee_api.dto.ObservationsDTO;
 import com.fujitsu.delivery_fee_api.dto.WeatherDataDTO;
@@ -19,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import java.util.stream.Collectors;
@@ -36,6 +38,7 @@ public class WeatherDataService {
     private final CityRepository cityRepository;
     private final WeatherDataParser weatherDataParser;
     private final WeatherDataMapper weatherDataMapper;
+    private final TimeUtils timeUtils;
 
     public void importWeatherData() {
         String xmlData = fetchWeatherData();
@@ -70,12 +73,26 @@ public class WeatherDataService {
         log.info("Weather data saved successfully");
     }
 
-    public WeatherDataDTO getWeatherData(Long id) {
+    public WeatherDataDTO getWeatherDataByCityId(Long id) {
         return weatherDataRepository.findById(id)
             .map(weatherDataMapper::toDto)
             .orElse(null);
     }
+
+    public WeatherDataDTO getWeatherDataByCityName(String cityName, LocalDateTime dateTime) {
+        dateTime = TimeUtils.getCurrentDateTimeIfNull(dateTime);
+
+        Integer epochSeconds = timeUtils.convertToEpochSeconds(dateTime);
+
+        City city = cityRepository.findByName(cityName);
+
+        return weatherDataRepository.findLatestByWMOCodeAsOfOpt(city.getWmoCode(), epochSeconds)
+            .map(weatherDataMapper::toDto)
+            .orElse(null);
+    }
     
+  
+   
     public WeatherDataDTO saveWeatherData(WeatherDataDTO weatherDataDTO) {
         WeatherData weatherData = weatherDataMapper.toEntity(weatherDataDTO);
         WeatherData savedWeatherData = weatherDataRepository.save(weatherData);

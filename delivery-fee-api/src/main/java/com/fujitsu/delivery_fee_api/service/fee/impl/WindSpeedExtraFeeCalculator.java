@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Component;
 
+import com.fujitsu.delivery_fee_api.dto.WeatherDataDTO;
 import com.fujitsu.delivery_fee_api.exception.VehicleUsageForbiddenException;
 import com.fujitsu.delivery_fee_api.model.VehicleType;
-import com.fujitsu.delivery_fee_api.model.WeatherData;
 import com.fujitsu.delivery_fee_api.model.fee_tables.WindSpeedExtraFee;
 import com.fujitsu.delivery_fee_api.repository.WindSpeedExtraFeeRepository;
 import com.fujitsu.delivery_fee_api.service.fee.ExtraFeeInterface;
@@ -32,7 +32,7 @@ public class WindSpeedExtraFeeCalculator implements ExtraFeeInterface {
      * @return               the calculated extra fee, or BigDecimal.ZERO if no extra fee is applicable
      */
     @Override
-    public BigDecimal calculateExtraFee(WeatherData weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
+    public BigDecimal calculateExtraFee(WeatherDataDTO weatherData, VehicleType vehicleType, LocalDateTime dateTime) {
         if (!vehicleType.getExtraFeeApplicable()) {
             return BigDecimal.ZERO;
         }
